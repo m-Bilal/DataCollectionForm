@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ public class FormListActivity extends AppCompatActivity {
 
     private Context context;
 
+    private Toolbar toolbar;
 
     private RecyclerView mRecyclerView;
     private MyRecylerViewAdapter mAdapter;
@@ -28,6 +30,11 @@ public class FormListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_from_list);
 
         context = this;
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         mRecyclerView = findViewById(R.id.recyclerview);
         mLayoutManager = new LinearLayoutManager(this);
@@ -61,12 +68,12 @@ public class FormListActivity extends AppCompatActivity {
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView textView;
-            public LinearLayout linearLayout;
+            //public LinearLayout linearLayout;
 
             public ViewHolder(View v) {
                 super(v);
                 textView = v.findViewById(R.id.textview);
-                linearLayout = v.findViewById(R.id.linear_layout);
+                //linearLayout = v.findViewById(R.id.linear_layout);
             }
         }
     }
