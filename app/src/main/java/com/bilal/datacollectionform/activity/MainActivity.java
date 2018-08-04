@@ -1,7 +1,9 @@
-package com.bilal.datacollectionform;
+package com.bilal.datacollectionform.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.bilal.datacollectionform.R;
 
 public class MainActivity extends AppCompatActivity {
 
