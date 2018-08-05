@@ -6,75 +6,44 @@
     android:background="#FFF"
     tools:context=".activity.LoginActivity">
 
-    <TextView
-        android:id="@+id/textview_login_label"
+    <ImageView
+        android:id="@+id/imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="48dp"
-        android:text="LOGIN"
-        android:textColor="@color/colorBlack"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textview_username_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textview_login_label"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:text="Username"
-        android:textColor="@color/colorBlack"
-        android:textSize="16sp" />
+        android:src="@drawable/img_login_header"
+        android:layout_marginTop="200dp"
+        android:layout_centerHorizontal="true"/>
 
     <EditText
         android:id="@+id/edittext_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textview_username_label"
+        android:layout_below="@id/imageview"
         android:layout_marginLeft="22dp"
         android:layout_marginRight="24dp"
-        android:hint="USERNAME" />
-
-    <TextView
-        android:id="@+id/textview_password_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/edittext_username"
-        android:layout_marginLeft="24dp"
         android:layout_marginTop="24dp"
-        android:text="Password"
-        android:textColor="@color/colorBlack"
-        android:textSize="16sp" />
+        android:hint="USERNAME" />
 
     <EditText
         android:id="@+id/edittext_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textview_password_label"
+        android:layout_below="@id/edittext_username"
         android:layout_marginLeft="22dp"
         android:layout_marginRight="24dp"
+        android:layout_marginTop="24dp"
         android:hint="PASSWORD" />
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp"
-        android:background="@color/colorPrimaryDark"
-        android:padding="1dp">
-
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/textview_login"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
             android:layout_height="wrap_content"
-            android:background="#FFF"
-            android:paddingBottom="12dp"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:paddingTop="12dp"
+            android:background="@color/colorYellow"
+            android:padding="12dp"
+            android:layout_alignParentBottom="true"
             android:text="LOGIN"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="16sp" />
-    </FrameLayout>
+            android:textStyle="bold"
+            android:textColor="@color/colorBlack"
+            android:textSize="24sp" />
 </RelativeLayout>

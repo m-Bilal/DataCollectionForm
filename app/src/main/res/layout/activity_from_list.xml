@@ -1,90 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.FormListActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:theme="@style/MyToolbarStyle"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:titleTextAppearance="@style/Toolbar.TitleText"/>
+        android:layout_alignParentTop="true"
+        android:background="@color/colorDarkOrange"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cardview"
-        android:layout_below="@id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_marginTop="6dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="5dp"
-        android:layout_height="wrap_content">
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp">
-            <ImageView
-                android:id="@+id/imageview"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginTop="12dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:src="@drawable/ic_search_black"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"/>
-
-            <EditText
-                android:id="@+id/edittext_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:layout_toRightOf="@id/imageview"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="2dp"
-                android:layout_marginRight="12dp"
-                android:hint="Search For Form"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/textview_forms_found_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="12dp"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/edittext_search"
-                android:text="Total Forms Found"
-                android:textColor="@color/colorBlack"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/textview_total_forms"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
-                android:layout_marginTop="12dp"
-                android:layout_below="@id/edittext_search"
-                android:layout_toRightOf="@id/textview_forms_found_label"
-                android:text="2"
-                android:textColor="@color/colorBlack"
-                android:textSize="18sp" />
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
+            android:layout_gravity="center"
+            android:text="Existing Projects"
+            android:textColor="#000"
+            android:textSize="20sp" />
+    </android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/cardview"
-        android:layout_marginTop="1dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp" />
+        android:layout_below="@id/toolbar"
+        android:layout_above="@id/imageview_home"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="24dp" />
+
+    <ImageView
+        android:id="@+id/imageview_home"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/oval_black"
+        android:src="@drawable/ic_home"
+        android:padding="8dp"
+        android:scaleType="fitXY"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="12dp"/>
 </RelativeLayout>

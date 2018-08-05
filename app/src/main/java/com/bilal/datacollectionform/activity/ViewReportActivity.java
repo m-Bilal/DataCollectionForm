@@ -5,35 +5,24 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bilal.datacollectionform.R;
-import com.bilal.datacollectionform.fragment.HomeFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class ViewReportActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private FrameLayout frameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_view_report);
 
-        frameLayout = findViewById(R.id.frame_layout);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        attachHomeFragment();
-    }
-
-    private void attachHomeFragment() {
-        frameLayout.removeAllViews();
-        HomeFragment homeFragment = new HomeFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.frame_layout, homeFragment).commit();
     }
 
     @Override
@@ -52,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.menu_item_notification) {
-            Toast.makeText(MainActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Action clicked", Toast.LENGTH_LONG).show();
             return true;
         }
 

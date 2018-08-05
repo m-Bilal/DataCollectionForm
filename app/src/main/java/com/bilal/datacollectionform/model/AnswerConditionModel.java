@@ -11,7 +11,7 @@ public class AnswerConditionModel extends RealmObject {
     public String equals;
     public String $do;
     public String to;
-    public char law;
+    public String law;
     public String doIt;
 
     public AnswerConditionModel() {

@@ -1,95 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <TextView
-        android:id="@+id/textview_welcome_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="36dp"
-        android:text="Welcome"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textview_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textview_welcome_label"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="6dp"
-        android:text="Administrator"
-        android:textColor="@color/colorBlack"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/textview_total_forms_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textview_name"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:text="Total Forms"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textview_total_forms"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textview_total_forms_label"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="6dp"
-        android:text="5"
-        android:textColor="@color/colorBlack"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/textview_entries_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textview_total_forms"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:text="Total Entries"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textview_entries"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textview_entries_label"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="6dp"
-        android:text="500"
-        android:textColor="@color/colorBlack"
-        android:textSize="18sp" />
-
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="36dp"
-        android:background="@color/colorPrimaryDark"
-        android:padding="1dp">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorDarkOrange"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
         <TextView
+            android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#FFF"
-            android:paddingBottom="12dp"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:paddingTop="12dp"
-            android:text="VIEW ALL FORMS"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="16sp" />
-    </FrameLayout>
+            android:textSize="24sp"
+            android:textColor="#FFF"
+            android:layout_gravity="center"
+            android:text="Form" />
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_below="@id/toolbar"
+        android:background="@color/colorDarkOrange" />
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar" />
 
 </RelativeLayout>
