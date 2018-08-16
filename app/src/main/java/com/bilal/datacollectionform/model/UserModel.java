@@ -32,6 +32,7 @@ public class UserModel extends RealmObject{
     public int login;
     public String message;
     public String user;
+    @PrimaryKey
     public int userId;
     public int noOfEntries;
     public int noOfForms;

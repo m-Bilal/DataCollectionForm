@@ -5,12 +5,15 @@ import android.content.Context;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class QuestionOptionModel extends RealmObject{
 
     @Ignore
     private final static String TAG = "AnswerOptionModel";
 
+    @PrimaryKey
+    public int primaryKey;
     public String value;
     public String hashkey;
     public String sMin;

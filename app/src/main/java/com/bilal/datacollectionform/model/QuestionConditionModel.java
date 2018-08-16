@@ -5,12 +5,15 @@ import android.content.Context;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class QuestionConditionModel extends RealmObject {
 
     @Ignore
     private final String TAG = "AnswerConditionModel";
 
+    @PrimaryKey
+    public int primaryKey;
     public String equals;
     public String $do;
     public String to;

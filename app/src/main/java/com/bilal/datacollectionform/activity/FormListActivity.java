@@ -1,8 +1,10 @@
 package com.bilal.datacollectionform.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bilal.datacollectionform.R;
+import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.model.FormModel;
+import com.bilal.datacollectionform.model.FormQuestionModel;
+import com.bilal.datacollectionform.model.UserModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormListActivity extends AppCompatActivity {
 
@@ -26,6 +35,10 @@ public class FormListActivity extends AppCompatActivity {
     private MyRecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private ProgressDialog progressDialog;
+
+    private List<FormModel> formModelList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,17 +46,61 @@ public class FormListActivity extends AppCompatActivity {
 
         context = this;
 
+        progressDialog = new ProgressDialog(context);
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        formModelList = new ArrayList<>();
         mRecyclerView = findViewById(R.id.recyclerview);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new MyRecyclerViewAdapter();
         mRecyclerView.setAdapter(mAdapter);
+
+        syncAllForms();
+    }
+
+    private void syncAllForms() {
+        progressDialog.setMessage("Loading");
+        progressDialog.show();
+        FormModel.syncAllForms(context, UserModel.getUserFromRealm(context), new CallbackHelper.Callback() {
+            @Override
+            public void onSuccess() {
+                progressDialog.dismiss();
+                formModelList = FormModel.getAllFromRealm(context);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure() {
+                progressDialog.dismiss();
+                if (FormModel.getAllFromRealm(context).size() == 0) {
+                    Toast.makeText(context, "Error, no internet", Toast.LENGTH_SHORT).show();
+                } else {
+                    formModelList = FormModel.getAllFromRealm(context);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    private void syncForm(FormModel formModel1) {
+        FormModel formModel = new FormModel(formModel1);
+        FormQuestionModel.syncForm(context, formModel, new CallbackHelper.Callback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -71,7 +128,6 @@ public class FormListActivity extends AppCompatActivity {
 
     private class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-        private String[] mDataset = {"Contact Form", "Survey Form"};
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -82,23 +138,31 @@ public class FormListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.textView.setText(mDataset[position]);
+            holder.textView.setText(formModelList.get(position).formName);
 
         }
 
         @Override
         public int getItemCount() {
-            return mDataset.length;
+            return formModelList.size();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView textView;
-            //public LinearLayout linearLayout;
+            public CardView cardView;
 
             public ViewHolder(View v) {
                 super(v);
                 textView = v.findViewById(R.id.textview);
+                cardView = v.findViewById(R.id.cardview);
+
+                cardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        syncForm(formModelList.get(getAdapterPosition()));
+                    }
+                });
                 //linearLayout = v.findViewById(R.id.linear_layout);
             }
         }

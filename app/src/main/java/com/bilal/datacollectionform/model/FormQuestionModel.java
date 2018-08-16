@@ -1,5 +1,6 @@
 package com.bilal.datacollectionform.model;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.util.Log;
 
@@ -19,15 +20,20 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class FormQuestionModel extends RealmObject{
 
     @Ignore
     private final static String TAG = "FromAnswerModel";
 
+    @PrimaryKey
+    public int primaryKey;
+
     public int formId;
-    public int id;
+    public int id; // Server id, not to be used as primary key
     public String label;
     public String type;
     public int required;
@@ -51,7 +57,7 @@ public class FormQuestionModel extends RealmObject{
         this.answerList = formQuestionModel.answerList;
     }
 
-    public static void syncAllFroms(final Context context, final FormModel formModel, final CallbackHelper.Callback callback) {
+    public static void syncForm(final Context context, final FormModel formModel, final CallbackHelper.Callback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "http://rdaps.com/form/api/form_view.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -59,26 +65,67 @@ public class FormQuestionModel extends RealmObject{
                     @Override
                     public void onResponse(String response) {
                         try {
+                            deleteAllForForm(context, formModel);
                             JSONArray jsonArray = new JSONArray(response);
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 FormQuestionModel formQuestionModel = new FormQuestionModel();
+                                formQuestionModel.primaryKey = PrimaryKeyModel.getFormQuestionPrimaryKey(context);
                                 formQuestionModel.formId = formModel.formId;
-                                formQuestionModel.id = jsonArray.getJSONObject(i).getInt("id");
-                                formQuestionModel.label = jsonArray.getJSONObject(i).getString("label");
-                                formQuestionModel.type = jsonArray.getJSONObject(i).getString("type");
+                                formQuestionModel.id = i;
+                                try {
+                                    formQuestionModel.label = jsonArray.getJSONObject(i).getString("label");
+                                } catch (Exception e) {
+                                    formQuestionModel.label = "";
+                                }
+                                try {
+                                    formQuestionModel.type = jsonArray.getJSONObject(i).getString("type");
+                                } catch (Exception e) {
+                                    formQuestionModel.type = null;
+                                }
                                 formQuestionModel.required = jsonArray.getJSONObject(i).getInt("required");
-                                JSONArray conditions = jsonArray.getJSONObject(i).getJSONArray("condition");
-                                JSONArray options = jsonArray.getJSONObject(i).getJSONArray("options");
+                                JSONArray conditions;
+                                try {
+                                  conditions = jsonArray.getJSONObject(i).getJSONArray("condition");
+                                } catch (Exception e) {
+                                    conditions = null;
+                                }
+                                JSONArray options;
+                                try {
+                                    options = jsonArray.getJSONObject(i).getJSONArray("options");
+                                } catch (Exception e) {
+                                    options = null;
+                                }
 
                                 if (conditions != null) {
                                     formQuestionModel.conditionList = new RealmList<>();
                                     for (int j = 0; j < conditions.length(); j++) {
                                         QuestionConditionModel conditionModel = new QuestionConditionModel();
-                                        conditionModel.equals = jsonArray.getJSONObject(j).getString("equals");
-                                        conditionModel.$do = jsonArray.getJSONObject(j).getString("do");
-                                        conditionModel.doIt = jsonArray.getJSONObject(j).getString("doit");
-                                        conditionModel.to = jsonArray.getJSONObject(j).getString("to");
-                                        conditionModel.law = jsonArray.getJSONObject(j).getString("law");
+                                        conditionModel.primaryKey = PrimaryKeyModel.getQuestionConditionPrimaryKey(context);
+                                        try {
+                                            conditionModel.equals = conditions.getJSONObject(j).getString("equals");
+                                        } catch (Exception e) {
+                                            conditionModel.equals = null;
+                                        }
+                                        try {
+                                            conditionModel.$do = conditions.getJSONObject(j).getString("do");
+                                        } catch (Exception e) {
+                                            conditionModel.$do = null;
+                                        }
+                                        try {
+                                            conditionModel.doIt = conditions.getJSONObject(j).getString("doit");
+                                        } catch (Exception e) {
+                                            conditionModel.doIt = null;
+                                        }
+                                        try {
+                                            conditionModel.to = conditions.getJSONObject(j).getString("to");
+                                        } catch (Exception e) {
+                                            conditionModel.to = null;
+                                        }
+                                        try {
+                                            conditionModel.law = conditions.getJSONObject(j).getString("law");
+                                        } catch (Exception e) {
+                                            conditionModel.law = null;
+                                        }
                                         QuestionConditionModel.saveToRealm(context, conditionModel);
                                         formQuestionModel.conditionList.add(conditionModel);
                                     }
@@ -88,20 +135,29 @@ public class FormQuestionModel extends RealmObject{
                                     formQuestionModel.optionList = new RealmList<>();
                                     for (int j = 0; j < options.length(); j++) {
                                         QuestionOptionModel questionOptionModel = new QuestionOptionModel();
-                                        questionOptionModel.value = jsonArray.getJSONObject(j).getString("val");
+                                        questionOptionModel.primaryKey = PrimaryKeyModel.getQuestionOptionPrimaryKey(context);
                                         try {
-                                            questionOptionModel.sMin = jsonArray.getJSONObject(j).getString("smin");
+                                            questionOptionModel.value = options.getJSONObject(j).getString("val");
+                                        } catch (Exception e) {
+                                            questionOptionModel.value = "";
+                                        }
+                                        try {
+                                            questionOptionModel.sMin = options.getJSONObject(j).getString("smin");
                                             questionOptionModel.containsSMin = true;
                                         } catch (Exception e) {
                                             questionOptionModel.containsSMin = false;
                                         }
                                         try {
-                                            questionOptionModel.sMax = jsonArray.getJSONObject(j).getString("smax");
+                                            questionOptionModel.sMax = options.getJSONObject(j).getString("smax");
                                             questionOptionModel.containsSMax = true;
                                         } catch (Exception e) {
                                             questionOptionModel.containsSMax = false;
                                         }
-                                        questionOptionModel.hashkey = jsonArray.getJSONObject(j).getString("$$hashkey");
+                                        try {
+                                            questionOptionModel.hashkey = options.getJSONObject(j).getString("$$hashKey");
+                                        } catch (Exception e) {
+                                            questionOptionModel.hashkey = "";
+                                        }
                                         QuestionOptionModel.saveToRealm(context, questionOptionModel);
                                         formQuestionModel.optionList.add(questionOptionModel);
                                     }
@@ -111,7 +167,7 @@ public class FormQuestionModel extends RealmObject{
                             callback.onSuccess();
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Log.e(TAG, "syncAllForms(), onResponse(), catch: " + e.toString());
+                            Log.e(TAG, "syncForm(), onResponse(), catch: " + e.toString());
                             callback.onFailure();
                         }
                     }
@@ -142,6 +198,17 @@ public class FormQuestionModel extends RealmObject{
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(formQuestionModel);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public static void deleteAllForForm(Context context, FormModel formModel) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormQuestionModel> realmResults = realm.where(FormQuestionModel.class)
+                .equalTo("formId", formModel.formId).findAll();
+        realm.beginTransaction();
+        realmResults.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
     }

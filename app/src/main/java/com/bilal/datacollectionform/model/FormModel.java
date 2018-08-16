@@ -19,6 +19,7 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
@@ -95,6 +96,13 @@ public class FormModel extends RealmObject {
         realm.copyToRealmOrUpdate(formModel);
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static RealmResults<FormModel> getAllFromRealm(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormModel> formModels = realm.where(FormModel.class).findAll();
+        return formModels;
     }
 
     public void addQuestionToForm(Context context, FormModel formModel, FormQuestionModel formQuestionModel) {
