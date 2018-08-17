@@ -14,6 +14,8 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import org.json.JSONArray;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
@@ -31,8 +33,11 @@ public class FormModel extends RealmObject {
     @PrimaryKey
     public int formId;
     public String formName;
-    public RealmList<FormQuestionModel> formQuestionModelList;
+    public RealmList<FormQuestionModel> formQuestionModelRealmList;
     public boolean syncedWithServer;
+
+    @Ignore
+    public List<FormQuestionModel> formQuestionModelList;
 
     public FormModel() {
         syncedWithServer = false;
@@ -41,7 +46,11 @@ public class FormModel extends RealmObject {
     public FormModel(FormModel formModel) {
         this.formId = formModel.formId;
         this.formName = formModel.formName;
-        this.formQuestionModelList = formModel.formQuestionModelList;
+        this.formQuestionModelRealmList = formModel.formQuestionModelRealmList;
+        formQuestionModelList = new LinkedList<>();
+        for (FormQuestionModel i : this.formQuestionModelRealmList) {
+            formQuestionModelList.add(new FormQuestionModel(i));
+        }
         this.syncedWithServer = formModel.syncedWithServer;
     }
 
@@ -105,16 +114,23 @@ public class FormModel extends RealmObject {
         return formModels;
     }
 
-    public void addQuestionToForm(Context context, FormModel formModel, FormQuestionModel formQuestionModel) {
+    public static void addQuestionToForm(Context context, FormModel formModel, FormQuestionModel formQuestionModel) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         FormModel formModel1 = realm.where(FormModel.class).equalTo("formId", formModel.formId).findFirst();
-        if (formModel1.formQuestionModelList == null) {
-            formModel1.formQuestionModelList = new RealmList<>();
+        if (formModel1.formQuestionModelRealmList == null) {
+            formModel1.formQuestionModelRealmList = new RealmList<>();
         }
-        formModel1.formQuestionModelList.add(formQuestionModel);
+        formModel1.formQuestionModelRealmList.add(formQuestionModel);
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static FormModel getFromForId(Context context, int id) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        FormModel model = realm.where(FormModel.class).equalTo("formId", id).findFirst();
+        return new FormModel(model);
     }
 }

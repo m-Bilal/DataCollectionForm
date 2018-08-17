@@ -2,6 +2,7 @@ package com.bilal.datacollectionform.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -89,11 +90,11 @@ public class FormListActivity extends AppCompatActivity {
     }
 
     private void syncForm(FormModel formModel1) {
-        FormModel formModel = new FormModel(formModel1);
+        final FormModel formModel = new FormModel(formModel1);
         FormQuestionModel.syncForm(context, formModel, new CallbackHelper.Callback() {
             @Override
             public void onSuccess() {
-                Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show();
+                startFormQuestionActivity(formModel.formId);
             }
 
             @Override
@@ -101,6 +102,12 @@ public class FormListActivity extends AppCompatActivity {
                 Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void startFormQuestionActivity(int formId) {
+        Intent intent = new Intent(context, FormQuestionActivity.class);
+        intent.putExtra(FormQuestionActivity.INTENT_ARG_FORM_ID, formId);
+        startActivity(intent);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.bilal.datacollectionform.helper;
 
+import com.bilal.datacollectionform.model.QuestionAnswerModel;
+
 public class CallbackHelper {
 
     public interface Callback {
@@ -11,5 +13,9 @@ public class CallbackHelper {
         void onSuccess();
         void onAuthenticationFailed(); // Called when the username/password is incorrect
         void onFailure();
+    }
+
+    public interface FragmentAnswerCallback {
+        void addAnswer(QuestionAnswerModel questionAnswerModel);
     }
 }

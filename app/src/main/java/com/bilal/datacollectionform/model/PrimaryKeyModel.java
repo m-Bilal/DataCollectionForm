@@ -17,6 +17,8 @@ public class PrimaryKeyModel extends RealmObject{
     public int formQuestionPrimaryKey;
     public int questionConditionPrimaryKey;
     public int questionOptionPrimaryKey;
+    public int formAnswerPrimaryKey;
+    public int questionAnswerPrimaryKey;
 
     public static int getFormQuestionPrimaryKey(Context context) {
         Realm.init(context);
@@ -57,6 +59,32 @@ public class PrimaryKeyModel extends RealmObject{
         return key;
     }
 
+    public static int getFormAnswerPrimaryKey(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        int key;
+        PrimaryKeyModel primaryKeyModel = realm.where(PrimaryKeyModel.class).equalTo("id", ID).findFirst();
+        realm.beginTransaction();
+        key = primaryKeyModel.formAnswerPrimaryKey++;
+        realm.copyToRealmOrUpdate(primaryKeyModel);
+        realm.commitTransaction();
+        realm.close();
+        return key;
+    }
+
+    public static int getQuestionAnswerPrimaryKey(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        int key;
+        PrimaryKeyModel primaryKeyModel = realm.where(PrimaryKeyModel.class).equalTo("id", ID).findFirst();
+        realm.beginTransaction();
+        key = primaryKeyModel.questionAnswerPrimaryKey++;
+        realm.copyToRealmOrUpdate(primaryKeyModel);
+        realm.commitTransaction();
+        realm.close();
+        return key;
+    }
+
     public static PrimaryKeyModel getPrimaryKeyModel(Context context) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
@@ -72,6 +100,8 @@ public class PrimaryKeyModel extends RealmObject{
         primaryKeyModel.questionOptionPrimaryKey = 0;
         primaryKeyModel.questionConditionPrimaryKey = 0;
         primaryKeyModel.formQuestionPrimaryKey = 0;
+        primaryKeyModel.formAnswerPrimaryKey = 0;
+        primaryKeyModel.questionAnswerPrimaryKey = 0;
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(primaryKeyModel);
         realm.commitTransaction();

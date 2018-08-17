@@ -29,6 +29,19 @@ public class FormQuestionModel extends RealmObject{
     @Ignore
     private final static String TAG = "FromAnswerModel";
 
+    public static final String TYPE_TEXT = "text";
+    public static final String TYPE_DROPDOWN = "dropdown";
+    public static final String TYPE_DATE = "date";
+    public static final String TYPE_STARS = "stars";
+    public static final String TYPE_FILE_UPLOAD = "upload";
+    public static final String TYPE_CHECKBOX = "check";
+    public static final String TYPE_RADIO_BUTTON= "radio";
+    public static final String TYPE_EMAIL = "email";
+    public static final String TYPE_TIME = "time";
+    public static final String TYPE_HIDDEN = "hidden";
+    public static final String TYPE_PARAGRAPH = "para";
+    public static final String TYPE_SUBMIT = "submitt";
+
     @PrimaryKey
     public int primaryKey;
 
@@ -39,8 +52,6 @@ public class FormQuestionModel extends RealmObject{
     public int required;
     public RealmList<QuestionConditionModel> conditionList;
     public RealmList<QuestionOptionModel> optionList;
-    public String answer;
-    public RealmList<QuestionOptionModel> answerList;
 
     public FormQuestionModel() {
 
@@ -53,8 +64,6 @@ public class FormQuestionModel extends RealmObject{
         this.required = formQuestionModel.required;
         this.conditionList = formQuestionModel.conditionList;
         this.optionList = formQuestionModel.optionList;
-        this.answer = formQuestionModel.answer;
-        this.answerList = formQuestionModel.answerList;
     }
 
     public static void syncForm(final Context context, final FormModel formModel, final CallbackHelper.Callback callback) {
@@ -163,6 +172,7 @@ public class FormQuestionModel extends RealmObject{
                                     }
                                 }
                                 saveToRealm(context, formQuestionModel);
+                                FormModel.addQuestionToForm(context, formModel, formQuestionModel);
                             }
                             callback.onSuccess();
                         } catch (Exception e) {
@@ -211,5 +221,13 @@ public class FormQuestionModel extends RealmObject{
         realmResults.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static FormQuestionModel getModelForPrimaryKey(Context context, int primaryKey) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        FormQuestionModel formQuestionModel = realm.where(FormQuestionModel.class).equalTo("primaryKey", primaryKey)
+                .findFirst();
+        return formQuestionModel;
     }
 }
