@@ -21,6 +21,18 @@ public class QuestionAnswerModel extends RealmObject {
     public String type;
     public int formId;
 
+    public QuestionAnswerModel() {
+
+    }
+
+    public QuestionAnswerModel(QuestionAnswerModel model) {
+        this.primaryKey = model.primaryKey;
+        this.label = model.label;
+        this.value = model.value;
+        this.type = model.type;
+        this.formId = model.formId;
+    }
+
     public static void saveToRealm(Context context, QuestionAnswerModel model) {
         Realm.init(context);
         model.primaryKey = PrimaryKeyModel.getQuestionAnswerPrimaryKey(context);
@@ -31,11 +43,27 @@ public class QuestionAnswerModel extends RealmObject {
         realm.close();
     }
 
+    public static void updateInRealm(Context context, QuestionAnswerModel model) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(model);
+        realm.commitTransaction();
+        realm.close();
+    }
+
     public static RealmResults<QuestionAnswerModel> getAllModelsForFormId(Context context, FormAnswerModel formAnswerModel) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         RealmResults<QuestionAnswerModel> realmResults = realm.where(QuestionAnswerModel.class)
                 .equalTo("formId", formAnswerModel.formId).findAll();
         return realmResults;
+    }
+
+    public static FormAnswerModel getModelForPrimaryKey(Context context, int key) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        FormAnswerModel formAnswerModel = realm.where(FormAnswerModel.class).equalTo("primaryKey", key).findFirst();
+        return formAnswerModel;
     }
 }

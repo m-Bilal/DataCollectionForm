@@ -60,14 +60,13 @@ public class FormAnswerModel extends RealmObject {
         realm.close();
     }
 
-    public static void addAnswer(Context context, FormAnswerModel formAnswerModel, QuestionAnswerModel questionAnswerModel) {
+    public void addAnswer(Context context, QuestionAnswerModel questionAnswerModel) {
         QuestionAnswerModel.saveToRealm(context, questionAnswerModel);
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
-        FormAnswerModel model = realm.where(FormAnswerModel.class).findFirst();
         realm.beginTransaction();
-        model.questionAnswerModelRealmList.add(questionAnswerModel);
-        realm.copyToRealmOrUpdate(model);
+        this.questionAnswerModelRealmList.add(questionAnswerModel);
+        realm.copyToRealmOrUpdate(this);
         realm.commitTransaction();
         realm.close();
     }

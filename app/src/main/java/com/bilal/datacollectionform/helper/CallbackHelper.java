@@ -17,5 +17,6 @@ public class CallbackHelper {
 
     public interface FragmentAnswerCallback {
         void addAnswer(QuestionAnswerModel questionAnswerModel);
+        void updateAnswer(QuestionAnswerModel questionAnswerModel);
     }
 }

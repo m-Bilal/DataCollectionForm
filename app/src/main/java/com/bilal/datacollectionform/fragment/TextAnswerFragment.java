@@ -4,6 +4,7 @@ package com.bilal.datacollectionform.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,10 @@ public class TextAnswerFragment extends Fragment {
     private EditText answerEdittext;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
+    private FormAnswerModel formAnswerModel;
+
+    private boolean alreadyAnswered;
+    private int position;
 
     private CallbackHelper.FragmentAnswerCallback callback;
 
@@ -45,22 +50,48 @@ public class TextAnswerFragment extends Fragment {
 
         context = getActivity();
         callback = (CallbackHelper.FragmentAnswerCallback) getActivity();
+        int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
+        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
+        position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
+
+        Log.d(TAG, "onCreateView, position : " + position);
+
         questionTextview = v.findViewById(R.id.textview_question);
         answerEdittext = v.findViewById(R.id.edittext_answer);
-        int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_KEY);
-        formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, key);
+        formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
+        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextview.setText(formQuestionModel.label);
+
+        checkIfAlreadyAnswered();
         return v;
+    }
+
+    private void checkIfAlreadyAnswered() {
+        try {
+            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
+            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            alreadyAnswered = true;
+            answerEdittext.setText(questionAnswerModel.value);
+            Log.d(TAG, "checkIfAlreadyAnswered, true");
+        } catch (Exception e){
+            questionAnswerModel = new QuestionAnswerModel();
+            alreadyAnswered = false;
+            Log.d(TAG, "checkIfAlreadyAnswered, false");
+        }
     }
 
     @Override
     public void onPause() {
-        questionAnswerModel = new QuestionAnswerModel();
-        questionAnswerModel.label = formQuestionModel.label;
-        questionAnswerModel.type = formQuestionModel.type;
-        questionAnswerModel.value = answerEdittext.getText().toString();
-        questionAnswerModel.formId = formQuestionModel.formId;
-        callback.addAnswer(questionAnswerModel);
+        if (alreadyAnswered) {
+            questionAnswerModel.value = answerEdittext.getText().toString();
+            callback.updateAnswer(questionAnswerModel);
+        } else {
+            questionAnswerModel.label = formQuestionModel.label;
+            questionAnswerModel.type = formQuestionModel.type;
+            questionAnswerModel.value = answerEdittext.getText().toString();
+            questionAnswerModel.formId = formQuestionModel.formId;
+            callback.addAnswer(questionAnswerModel);
+        }
         super.onPause();
     }
 }

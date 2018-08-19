@@ -17,7 +17,6 @@ import com.bilal.datacollectionform.activity.FormQuestionActivity;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
-import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -45,7 +44,7 @@ public class AnswerListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_answer_list, container, false);
         context = getActivity();
         recyclerView = v.findViewById(R.id.recyclerview);
-        int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_KEY);
+        int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
         questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
 
