@@ -3,9 +3,19 @@ package com.bilal.datacollectionform.model;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.bilal.datacollectionform.helper.CallbackHelper;
+
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -66,6 +76,45 @@ public class FormAnswerModel extends RealmObject {
             Log.e(TAG, "saveJson(), exception : " + e.toString());
             e.printStackTrace();
         }
+    }
+
+    public static void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.Callback callback) {
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "http://rdaps.com/form/api/submit.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        formAnswerModel.setSyncedWithServer(context, true);
+                        callback.onSuccess();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        formAnswerModel.setSyncedWithServer(context, false);
+                        callback.onSuccess();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("datasubmissionjson", formAnswerModel.json);
+                return params;
+            }
+        };
+        postRequest.setShouldCache(false);
+        queue.add(postRequest);
+    }
+
+    public void setSyncedWithServer(Context context,boolean synced) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        this.syncedWithServer = synced;
+        realm.commitTransaction();
+        realm.close();
     }
 
     public static FormAnswerModel createModel(Context context, UserModel userModel, FormModel formModel) {
