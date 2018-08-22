@@ -1,6 +1,9 @@
 package com.bilal.datacollectionform.model;
 
 import android.content.Context;
+import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -35,6 +38,34 @@ public class FormAnswerModel extends RealmObject {
         this.captureDate = model.captureDate;
         this.syncedWithServer = model.syncedWithServer;
         this.questionAnswerModelRealmList = model.questionAnswerModelRealmList;
+    }
+
+    public void saveJson(Context context) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONObject formInfo = new JSONObject();
+            formInfo.put("formid", this.formId);
+            formInfo.put("userid", this.userId);
+            formInfo.put("capturedate", this.captureDate);
+            jsonObject.put("0", formInfo);
+            int pos = 1;
+            for (QuestionAnswerModel i : questionAnswerModelRealmList) {
+                JSONObject questionJson = new JSONObject();
+                questionJson.put("label", i.label);
+                questionJson.put("value", i.value);
+                questionJson.put("type", i.type);
+                jsonObject.put("" + pos++, questionJson);
+            }
+            Realm.init(context);
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            this.json = jsonObject.toString();
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            Log.e(TAG, "saveJson(), exception : " + e.toString());
+            e.printStackTrace();
+        }
     }
 
     public static FormAnswerModel createModel(Context context, UserModel userModel, FormModel formModel) {

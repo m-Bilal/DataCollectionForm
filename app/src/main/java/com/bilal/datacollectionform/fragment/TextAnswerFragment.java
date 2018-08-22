@@ -54,8 +54,6 @@ public class TextAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
-        Log.d(TAG, "onCreateView, position : " + position);
-
         questionTextview = v.findViewById(R.id.textview_question);
         answerEdittext = v.findViewById(R.id.edittext_answer);
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);

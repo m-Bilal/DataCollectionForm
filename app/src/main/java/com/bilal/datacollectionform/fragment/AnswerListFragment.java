@@ -47,6 +47,7 @@ public class AnswerListFragment extends Fragment {
         int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
         questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
+        formAnswerModel.saveJson(context);
 
         adapter = new MyRecyclerViewAdapter();
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
