@@ -48,6 +48,7 @@ public class FormAnswerModel extends RealmObject {
         this.captureDate = model.captureDate;
         this.syncedWithServer = model.syncedWithServer;
         this.questionAnswerModelRealmList = model.questionAnswerModelRealmList;
+        this.json = model.json;
     }
 
     public void saveJson(Context context) {
@@ -78,31 +79,44 @@ public class FormAnswerModel extends RealmObject {
         }
     }
 
-    public static void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.Callback callback) {
+    public static void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.IntCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
+        final FormAnswerModel asyncModel = new FormAnswerModel(formAnswerModel);
         String url = "http://rdaps.com/form/api/submit.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         formAnswerModel.setSyncedWithServer(context, true);
-                        callback.onSuccess();
+                        callback.onSuccess(Integer.parseInt(response));
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         formAnswerModel.setSyncedWithServer(context, false);
-                        callback.onSuccess();
+                        Log.e(TAG, "syncUploadToServer, onErrorResponse : " + error.toString());
+                        error.printStackTrace();
+                        callback.onFailure();
                     }
                 }
         ) {
+            @Override
+            public byte[] getBody() throws com.android.volley.AuthFailureError {
+                return asyncModel.json.getBytes();
+            }
+
+            public String getBodyContentType() {
+                return "application/text; charset=utf-8";
+            }
+            /*
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("datasubmissionjson", formAnswerModel.json);
                 return params;
             }
+            */
         };
         postRequest.setShouldCache(false);
         queue.add(postRequest);

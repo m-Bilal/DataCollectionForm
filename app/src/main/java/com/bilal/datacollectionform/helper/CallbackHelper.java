@@ -9,6 +9,11 @@ public class CallbackHelper {
         void onFailure();
     }
 
+    public interface IntCallback {
+        void onSuccess(int response);
+        void onFailure();
+    }
+
     public interface LoginCallback {
         void onSuccess();
         void onAuthenticationFailed(); // Called when the username/password is incorrect

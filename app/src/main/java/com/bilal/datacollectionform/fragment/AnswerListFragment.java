@@ -1,6 +1,7 @@
 package com.bilal.datacollectionform.fragment;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.activity.FormQuestionActivity;
+import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
@@ -56,7 +59,31 @@ public class AnswerListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
+        syncFormWithServer(formAnswerModel);
+
         return v;
+    }
+
+    private void syncFormWithServer(FormAnswerModel formAnswerModel) {
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Loading");
+        progressDialog.show();
+        FormAnswerModel.syncUploadToServer(context, formAnswerModel, new CallbackHelper.IntCallback() {
+            @Override
+            public void onSuccess(int response) {
+                progressDialog.dismiss();
+                if (response == 1) {
+                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                progressDialog.dismiss();
+            }
+        });
     }
 
     public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {
