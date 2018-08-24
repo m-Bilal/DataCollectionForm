@@ -107,7 +107,11 @@ public class CheckboxAnswerFragment extends Fragment {
     private void parseAnswer() {
         answerList = new ArrayList<>();
         String arr[] = questionAnswerModel.value.split(",");
+        Log.d(TAG, "parseAnswer: value: " + questionAnswerModel.value);
         answerList = Arrays.asList(arr);
+        for (String i : answerList) {
+            Log.d(TAG, "parseAnswer: " + i);
+        }
     }
 
     private String getAnswersAsString() {
@@ -116,6 +120,7 @@ public class CheckboxAnswerFragment extends Fragment {
             result.append(i);
             result.append(",");
         }
+        Log.d(TAG, "getAnsAsString : " +result.toString());
         return result.toString();
     }
 

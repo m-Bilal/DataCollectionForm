@@ -1,10 +1,12 @@
 package com.bilal.datacollectionform.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -42,8 +44,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     public final static String BUNDLE_ARG_QUESTION_KEY = "primary_key";
     public final static String BUNDLE_ARG_ANSWER_FORM_KEY = "answer_form_key";
     public final static String BUNDLE_ARG_POSITION = "pos";
-    public final static int INTENT_SELECT_FILE_REQUEST_CODE = 1;
-    public final static int INTENT_SELECT_IMAGE_REQUEST_CODE = 2;
+    public final static int INTENT_SELECT_FILE_REQUEST_CODE = 1001;
+    public final static int INTENT_SELECT_IMAGE_REQUEST_CODE = 1002;
 
     private Context context;
     private FormModel formModel;
@@ -52,6 +54,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     private FrameLayout frameLayout;
     private TextView previousTextview;
     private TextView nextTextview;
+    private TextView newEntryTextview;
     private FormAnswerModel formAnswerModel;
     private Fragment currentFragment;
 
@@ -68,6 +71,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         toolbar = findViewById(R.id.toolbar);
         previousTextview = findViewById(R.id.textview_previous);
         nextTextview = findViewById(R.id.textview_next);
+        newEntryTextview = findViewById(R.id.textview_new_entry);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -94,6 +98,19 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                 attachNextFragment();
             }
         });
+
+        newEntryTextview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startFormListActivity();
+            }
+        });
+    }
+
+    private void startFormListActivity() {
+        Intent intent = new Intent(context, FormListActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void createQuestionFragments() {
@@ -189,8 +206,16 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         if (pos < fragmentList.size()) {
             frameLayout.removeAllViews();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragmentList.get(pos)).commit();
+            if (pos == fragmentList.size() - 1) {
+                nextTextview.setText("Upload and save");
+            } else {
+                nextTextview.setText("Next");
+            }
         } else if (pos == fragmentList.size()) {
             frameLayout.removeAllViews();
+            nextTextview.setVisibility(View.GONE);
+            previousTextview.setVisibility(View.GONE);
+            newEntryTextview.setVisibility(View.VISIBLE);
             Fragment fragment = new AnswerListFragment();
             Bundle bundle = new Bundle();
             bundle.putInt(BUNDLE_ARG_QUESTION_KEY, formAnswerModel.primaryKey);
@@ -204,7 +229,29 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         if (pos >= 0) {
             frameLayout.removeAllViews();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragmentList.get(pos)).commit();
+            if (pos == fragmentList.size() - 1) {
+                nextTextview.setText("Upload and save");
+            } else {
+                nextTextview.setText("Next");
+            }
         }
+    }
+
+    private void showWarningAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Going back will delete the current entry. Are you sure you want to delete this entry?")
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteModelAndGoBack();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.create();
+        builder.show();
     }
 
     @Override
@@ -233,6 +280,20 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         else if(requestCode == INTENT_SELECT_IMAGE_REQUEST_CODE && resultCode == RESULT_OK) {
             Uri selectedFile = data.getData(); //The uri with the location of the file
             ((ImageAnswerFragment) currentFragment).setResultUri(selectedFile);
+        }
+    }
+
+    private void deleteModelAndGoBack() {
+        FormAnswerModel.deleteModel(context, formAnswerModel);
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!(currentFragment instanceof AnswerListFragment)) {
+            showWarningAlertDialog();
+        } else {
+            super.onBackPressed();
         }
     }
 }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.activity.FormQuestionActivity;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.Helper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
@@ -64,8 +65,16 @@ public class TextAnswerFragment extends Fragment {
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextview.setText(formQuestionModel.label);
 
+        if (!formQuestionModel.type.equalsIgnoreCase(FormQuestionModel.TYPE_PARAGRAPH)) {
+            answerEdittext.setMaxLines(1);
+        }
+
         checkIfAlreadyAnswered();
         return v;
+    }
+
+    public boolean emailValid() {
+        return Helper.validateEmail(answerEdittext.getText().toString());
     }
 
     private void checkIfAlreadyAnswered() {

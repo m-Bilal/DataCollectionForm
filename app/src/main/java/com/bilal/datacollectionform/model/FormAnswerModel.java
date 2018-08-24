@@ -170,4 +170,14 @@ public class FormAnswerModel extends RealmObject {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(FormAnswerModel.class).equalTo("primaryKey", primaryKey).findFirst();
     }
+
+    public static void deleteModel(Context context, FormAnswerModel model) {
+        Realm.init(context);
+        FormAnswerModel formAnswerModel = getModelForPrimaryKey(context, model.primaryKey);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        formAnswerModel.deleteFromRealm();
+        realm.commitTransaction();
+        realm.close();
+    }
 }

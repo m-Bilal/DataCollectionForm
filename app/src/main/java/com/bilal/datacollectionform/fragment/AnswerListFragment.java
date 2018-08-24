@@ -20,6 +20,8 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
+import java.util.List;
+
 import io.realm.RealmResults;
 
 /**
@@ -31,9 +33,10 @@ public class AnswerListFragment extends Fragment {
 
     private Context context;
 
-    private RealmResults<QuestionAnswerModel> questionAnswerModels;
+    private List<QuestionAnswerModel> questionAnswerModels;
     private RecyclerView recyclerView;
     MyRecyclerViewAdapter adapter;
+    private CallbackHelper.FragmentCallback fragmentCallback;
 
     public AnswerListFragment() {
         // Required empty public constructor
@@ -46,10 +49,14 @@ public class AnswerListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_answer_list, container, false);
         context = getActivity();
+        fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
+        fragmentCallback.setCurrentFragment(this);
+
         recyclerView = v.findViewById(R.id.recyclerview);
         int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
-        questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
+        questionAnswerModels = formAnswerModel.questionAnswerModelRealmList;
+        //questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
         formAnswerModel.saveJson(context);
 
         adapter = new MyRecyclerViewAdapter();
@@ -68,7 +75,7 @@ public class AnswerListFragment extends Fragment {
         final ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Loading");
         progressDialog.show();
-        /*
+
         FormAnswerModel.syncUploadToServer(context, formAnswerModel, new CallbackHelper.IntCallback() {
             @Override
             public void onSuccess(int response) {
@@ -85,7 +92,7 @@ public class AnswerListFragment extends Fragment {
                 progressDialog.dismiss();
             }
         });
-        */
+
     }
 
     public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {

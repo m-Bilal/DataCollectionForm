@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textview_question"
         android:textSize="18sp"
+        android:inputType="text"
         android:textColor="#000"
         android:hint="Answer" />
 </RelativeLayout>

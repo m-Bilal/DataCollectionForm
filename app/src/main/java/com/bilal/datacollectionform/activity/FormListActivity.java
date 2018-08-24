@@ -99,7 +99,11 @@ public class FormListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure() {
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                if (FormModel.getFromForId(context, formModel.formId) != null) {
+                    startFormQuestionActivity(formModel.formId);
+                } else {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
