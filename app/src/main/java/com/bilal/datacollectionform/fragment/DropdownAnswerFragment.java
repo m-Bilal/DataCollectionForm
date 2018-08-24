@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -19,11 +18,6 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,6 +39,7 @@ public class DropdownAnswerFragment extends Fragment {
     private String answer;
 
     private CallbackHelper.FragmentAnswerCallback callback;
+    private CallbackHelper.FragmentCallback fragmentCallback;
 
 
     public DropdownAnswerFragment() {
@@ -60,6 +55,8 @@ public class DropdownAnswerFragment extends Fragment {
 
         context = getActivity();
         callback = (CallbackHelper.FragmentAnswerCallback) getActivity();
+        fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
+        fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
@@ -70,24 +67,30 @@ public class DropdownAnswerFragment extends Fragment {
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
-        createListForSpinner();
+        createOptionArrayForSpinner();
         checkIfAlreadyAnswered();
 
-        /*
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
-                optionsArray, android.R.layout.simple_spinner_item);
-*/
-        spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item, optionsArray);
+        spinner.setAdapter(arrayAdapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 answer = optionsArray[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
         return v;
     }
 
-    private void createListForSpinner() {
+    private void createOptionArrayForSpinner() {
         optionsArray = new String[formQuestionModel.optionList.size()];
         for(int i = 0; i < formQuestionModel.optionList.size(); i++) {
             optionsArray[i] = formQuestionModel.optionList.get(i).value;

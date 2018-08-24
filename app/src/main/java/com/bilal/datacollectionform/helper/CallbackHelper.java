@@ -1,5 +1,8 @@
 package com.bilal.datacollectionform.helper;
 
+
+import android.support.v4.app.Fragment;
+
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
 public class CallbackHelper {
@@ -23,5 +26,9 @@ public class CallbackHelper {
     public interface FragmentAnswerCallback {
         void addAnswer(QuestionAnswerModel questionAnswerModel);
         void updateAnswer(QuestionAnswerModel questionAnswerModel);
+    }
+
+    public interface FragmentCallback {
+        void setCurrentFragment(Fragment fragment);
     }
 }

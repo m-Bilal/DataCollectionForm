@@ -68,6 +68,7 @@ public class AnswerListFragment extends Fragment {
         final ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Loading");
         progressDialog.show();
+        /*
         FormAnswerModel.syncUploadToServer(context, formAnswerModel, new CallbackHelper.IntCallback() {
             @Override
             public void onSuccess(int response) {
@@ -84,6 +85,7 @@ public class AnswerListFragment extends Fragment {
                 progressDialog.dismiss();
             }
         });
+        */
     }
 
     public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {

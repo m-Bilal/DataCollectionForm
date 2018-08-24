@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ public class TextAnswerFragment extends Fragment {
     private int position;
 
     private CallbackHelper.FragmentAnswerCallback callback;
+    private CallbackHelper.FragmentCallback fragmentCallback;
 
     public TextAnswerFragment() {
         // Required empty public constructor
@@ -50,6 +52,8 @@ public class TextAnswerFragment extends Fragment {
 
         context = getActivity();
         callback = (CallbackHelper.FragmentAnswerCallback) getActivity();
+        fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
+        fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
@@ -78,8 +82,17 @@ public class TextAnswerFragment extends Fragment {
         }
     }
 
+    private void closeKeyboard(View view) {
+        InputMethodManager inputManager = (InputMethodManager)
+                context.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(view.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     @Override
     public void onPause() {
+        closeKeyboard(answerEdittext);
         if (alreadyAnswered) {
             questionAnswerModel.value = answerEdittext.getText().toString();
             callback.updateAnswer(questionAnswerModel);

@@ -33,19 +33,19 @@ public class DateAnswerFragment extends Fragment {
 
     private Context context;
     private TextView questionTextView;
-    private TextView selectedDateTextview;
-    private Button button;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
     private SimpleDateFormat simpleDateFormat;
     private Date date;
+    private DatePicker datePicker;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
 
     private CallbackHelper.FragmentAnswerCallback callback;
+    private CallbackHelper.FragmentCallback fragmentCallback;
 
 
     public DateAnswerFragment() {
@@ -61,51 +61,43 @@ public class DateAnswerFragment extends Fragment {
 
         context = getActivity();
         callback = (CallbackHelper.FragmentAnswerCallback) getActivity();
+        fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
+        fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         questionTextView = v.findViewById(R.id.textview_question);
-        button = v.findViewById(R.id.button_select_date);
-        selectedDateTextview = v.findViewById(R.id.textview_selected_date);
-
+        datePicker = v.findViewById(R.id.datepicker);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
         checkIfAlreadyAnswered();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateSelectionDialog();
-            }
-        });
-
         return v;
     }
 
-    private void showDateSelectionDialog() {
-        final Calendar myCalendar = Calendar.getInstance();
-        DatePickerDialog.OnDateSetListener datePickerDialog = new DatePickerDialog.OnDateSetListener() {
-
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                date = myCalendar.getTime();
-                selectDate();
-            }
-
-        };
+    private void initDatePicker(Date date1) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date1);
+        datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
+                    @Override
+                    public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        Calendar myCalendar = Calendar.getInstance();
+                        myCalendar.set(Calendar.YEAR, year);
+                        myCalendar.set(Calendar.MONTH, monthOfYear);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        date = myCalendar.getTime();
+                        selectDate();
+                    }
+                });
     }
 
     private void selectDate() {
         simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
         answer = simpleDateFormat.format(date);
-        selectedDateTextview.setText("Selected Date : " + answer);
     }
 
     private void checkIfAlreadyAnswered() {
@@ -115,11 +107,13 @@ public class DateAnswerFragment extends Fragment {
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
             simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
-            selectedDateTextview.setText("Selected Date : " + answer);
+            Date date = simpleDateFormat.parse(answer);
+            initDatePicker(date);
 
         } catch (Exception e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
+            initDatePicker(new Date());
             answer = "";
         }
     }

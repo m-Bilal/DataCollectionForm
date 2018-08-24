@@ -23,6 +23,11 @@ import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -37,12 +42,13 @@ public class CheckboxAnswerFragment extends Fragment {
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
     private MyRecyclerViewAdapter adapter;
+    private List<String> answerList;
 
     private boolean alreadyAnswered;
     private int position;
-    private String answer;
 
     private CallbackHelper.FragmentAnswerCallback callback;
+    private CallbackHelper.FragmentCallback fragmentCallback;
 
     public CheckboxAnswerFragment() {
         // Required empty public constructor
@@ -57,6 +63,8 @@ public class CheckboxAnswerFragment extends Fragment {
 
         context = getActivity();
         callback = (CallbackHelper.FragmentAnswerCallback) getActivity();
+        fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
+        fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
@@ -64,6 +72,7 @@ public class CheckboxAnswerFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview);
         textView = v.findViewById(R.id.textview_question);
 
+        answerList = new ArrayList<>();
         adapter = new MyRecyclerViewAdapter();
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -73,6 +82,7 @@ public class CheckboxAnswerFragment extends Fragment {
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
+
         checkIfAlreadyAnswered();
 
         return v;
@@ -82,34 +92,49 @@ public class CheckboxAnswerFragment extends Fragment {
         try {
             questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
             questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
-            answer = questionAnswerModel.value;
+            parseAnswer();
             alreadyAnswered = true;
         } catch (Exception e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
-            answer = "";
+            answerList = new ArrayList<>();
         }
         finally {
             adapter.notifyDataSetChanged();
         }
     }
 
+    private void parseAnswer() {
+        answerList = new ArrayList<>();
+        String arr[] = questionAnswerModel.value.split(",");
+        answerList = Arrays.asList(arr);
+    }
+
+    private String getAnswersAsString() {
+        StringBuilder result = new StringBuilder();
+        for (String i : answerList) {
+            result.append(i);
+            result.append(",");
+        }
+        return result.toString();
+    }
+
     @Override
     public void onPause() {
         if (alreadyAnswered) {
-            questionAnswerModel.value = answer;
+            questionAnswerModel.value = getAnswersAsString();
             callback.updateAnswer(questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;
-            questionAnswerModel.value = answer;
+            questionAnswerModel.value = getAnswersAsString();
             questionAnswerModel.formId = formQuestionModel.formId;
             callback.addAnswer(questionAnswerModel);
         }
         super.onPause();
     }
 
-    public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {
+    private class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
             TextView textView;
@@ -126,13 +151,12 @@ public class CheckboxAnswerFragment extends Fragment {
                 linearLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (checkBox.isChecked() == true) {
+                        if (checkBox.isChecked()) {
                             checkBox.setChecked(false);
-                            answer = "";
+                            answerList.remove(textView.getText().toString());
                         } else {
                             checkBox.setChecked(true);
-                            int pos = getAdapterPosition();
-                            answer = formQuestionModel.optionList.get(pos).value;
+                            answerList.add(textView.getText().toString());
                         }
                         adapter.notifyDataSetChanged();
                     }
@@ -141,13 +165,12 @@ public class CheckboxAnswerFragment extends Fragment {
                 checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (checkBox.isChecked() == true) {
+                        if (checkBox.isChecked()) {
                             checkBox.setChecked(false);
-                            answer = "";
+                            answerList.remove(textView.getText().toString());
                         } else {
                             checkBox.setChecked(true);
-                            int pos = getAdapterPosition();
-                            answer = formQuestionModel.optionList.get(pos).value;
+                            answerList.add(textView.getText().toString());
                         }
                         adapter.notifyDataSetChanged();
                     }
@@ -166,8 +189,10 @@ public class CheckboxAnswerFragment extends Fragment {
         @Override
         public void onBindViewHolder(final MyViewHolder holder, int position) {
             holder.textView.setText(formQuestionModel.optionList.get(position).value);
-            if (formQuestionModel.optionList.get(position).value.equalsIgnoreCase(answer)) {
+            if (answerList.contains(holder.textView.getText().toString())) {
                 holder.checkBox.setChecked(true);
+            } else {
+                holder.checkBox.setChecked(false);
             }
 
         }
