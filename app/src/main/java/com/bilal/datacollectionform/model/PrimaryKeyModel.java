@@ -10,7 +10,7 @@ public class PrimaryKeyModel extends RealmObject{
 
     private final static String TAG = "PrimaryKeyModel";
 
-    public static final int ID = 1;
+    private final static int ID = 1;
 
     @PrimaryKey
     public int id;
@@ -19,6 +19,20 @@ public class PrimaryKeyModel extends RealmObject{
     public int questionOptionPrimaryKey;
     public int formAnswerPrimaryKey;
     public int questionAnswerPrimaryKey;
+    public int fileModelPrimaryKey;
+
+    public static int getFileModelPrimaryKey(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        int key;
+        PrimaryKeyModel primaryKeyModel = realm.where(PrimaryKeyModel.class).equalTo("id", ID).findFirst();
+        realm.beginTransaction();
+        key = primaryKeyModel.fileModelPrimaryKey++;
+        realm.copyToRealmOrUpdate(primaryKeyModel);
+        realm.commitTransaction();
+        realm.close();
+        return key;
+    }
 
     public static int getFormQuestionPrimaryKey(Context context) {
         Realm.init(context);
@@ -102,6 +116,7 @@ public class PrimaryKeyModel extends RealmObject{
         primaryKeyModel.formQuestionPrimaryKey = 0;
         primaryKeyModel.formAnswerPrimaryKey = 0;
         primaryKeyModel.questionAnswerPrimaryKey = 0;
+        primaryKeyModel.fileModelPrimaryKey = 0;
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(primaryKeyModel);
         realm.commitTransaction();

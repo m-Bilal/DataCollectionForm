@@ -26,6 +26,14 @@
         </activity>
         <activity android:name=".activity.FormQuestionActivity"
             android:windowSoftInputMode="adjustPan|adjustResize" />
+
+        <service
+            android:exported="false"
+            android:name=".service.FileUploadService">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
