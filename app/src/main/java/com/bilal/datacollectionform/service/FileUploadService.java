@@ -34,13 +34,14 @@ public class FileUploadService extends JobService {
         filesUploaded = 0;
         final int totalFiles = fileModelList.size();
         final NotificationCompat.Builder builder = NotificationHelper.createFileUploadNotification(getApplicationContext());
-        for (FileModel model : fileModelList) {
+        for (final FileModel model : fileModelList) {
             Log.d(TAG, "onStartJob, file model: " + model.uri);
             model.syncUploadToServer(getApplicationContext(), model, new CallbackHelper.Callback() {
                 @Override
                 public void onSuccess() {
                     NotificationHelper.updateFileNotificationProgress(getApplicationContext(), builder,
                             ++filesUploaded, totalFiles);
+                    model.setSyncedWithServer(getApplicationContext(), true);
                     Log.d(TAG, "onStartJob, onSuccess");
                 }
 
