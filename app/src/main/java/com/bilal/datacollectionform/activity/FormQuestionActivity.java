@@ -125,7 +125,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                         || i.type.equalsIgnoreCase(FormQuestionModel.TYPE_TEXT)) {
                     Fragment fragment = new TextAnswerFragment();
                     Bundle bundle = new Bundle();
-                    Log.d(TAG, "createQuestionFragment, pk : " + i.primaryKey);
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
                     bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
@@ -187,6 +186,14 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
+                } else if (i.type.equalsIgnoreCase(FormQuestionModel.TYPE_IMAGE)) {
+                    Fragment fragment = new ImageAnswerFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
+                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
+                    bundle.putInt(BUNDLE_ARG_POSITION, j++);
+                    fragment.setArguments(bundle);
+                    fragmentList.add(fragment);
                 } else if (i.type.equalsIgnoreCase(FormQuestionModel.TYPE_HIDDEN)) {
                     // Hidden
                 } else if (i.type.equalsIgnoreCase(FormQuestionModel.TYPE_SUBMIT)) {
@@ -196,12 +203,35 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         }
     }
 
+    private void askFragmentToSaveAnswer() {
+        if (currentFragment instanceof CheckboxAnswerFragment) {
+            ((CheckboxAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof DateAnswerFragment) {
+            ((DateAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof DropdownAnswerFragment) {
+            ((DropdownAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof FileAnswerFragment) {
+            ((FileAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof ImageAnswerFragment) {
+            ((ImageAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof RadioButtonAnswerFragment) {
+            ((RadioButtonAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof StarAnswerFragment) {
+            ((StarAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof TextAnswerFragment) {
+            ((TextAnswerFragment) currentFragment).saveAnswer();
+        } else if (currentFragment instanceof TimeAnswerFragment) {
+            ((TimeAnswerFragment) currentFragment).saveAnswer();
+        }
+    }
+
     private void attachFirstFragment() {
         frameLayout.removeAllViews();
         getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, fragmentList.get(pos)).commit();
     }
 
     private void attachNextFragment() {
+        askFragmentToSaveAnswer();
         pos++;
         if (pos < fragmentList.size()) {
             frameLayout.removeAllViews();
@@ -225,6 +255,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     }
 
     private void attachPreviousFragment() {
+        askFragmentToSaveAnswer();
         pos--;
         if (pos >= 0) {
             frameLayout.removeAllViews();

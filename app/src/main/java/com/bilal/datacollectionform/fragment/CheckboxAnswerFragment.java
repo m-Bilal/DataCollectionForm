@@ -108,7 +108,10 @@ public class CheckboxAnswerFragment extends Fragment {
         answerList = new ArrayList<>();
         String arr[] = questionAnswerModel.value.split(",");
         Log.d(TAG, "parseAnswer: value: " + questionAnswerModel.value);
-        answerList = Arrays.asList(arr);
+        for (String i : arr) {
+            answerList.add(i);
+        }
+        //answerList = Arrays.asList(arr);
         for (String i : answerList) {
             Log.d(TAG, "parseAnswer: " + i);
         }
@@ -124,8 +127,7 @@ public class CheckboxAnswerFragment extends Fragment {
         return result.toString();
     }
 
-    @Override
-    public void onPause() {
+    public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = getAnswersAsString();
             callback.updateAnswer(questionAnswerModel);
@@ -136,6 +138,10 @@ public class CheckboxAnswerFragment extends Fragment {
             questionAnswerModel.formId = formQuestionModel.formId;
             callback.addAnswer(questionAnswerModel);
         }
+    }
+
+    @Override
+    public void onPause() {
         super.onPause();
     }
 
@@ -171,11 +177,9 @@ public class CheckboxAnswerFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (checkBox.isChecked()) {
-                            checkBox.setChecked(false);
-                            answerList.remove(textView.getText().toString());
-                        } else {
-                            checkBox.setChecked(true);
                             answerList.add(textView.getText().toString());
+                        } else {
+                            answerList.remove(textView.getText().toString());
                         }
                         adapter.notifyDataSetChanged();
                     }

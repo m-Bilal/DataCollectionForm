@@ -94,8 +94,7 @@ public class StarAnswerFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onPause() {
+    public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
             callback.updateAnswer(questionAnswerModel);
@@ -106,6 +105,10 @@ public class StarAnswerFragment extends Fragment {
             questionAnswerModel.formId = formQuestionModel.formId;
             callback.addAnswer(questionAnswerModel);
         }
+    }
+
+    @Override
+    public void onPause() {
         super.onPause();
     }
 

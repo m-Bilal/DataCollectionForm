@@ -93,9 +93,8 @@ public class ImageAnswerFragment extends Fragment {
 
     public void setResultUri(Uri uri) {
         answerUri = uri;
-        answer = Helper.getFileName(context, answerUri);
+        answer = uri.toString();
         selectedFileTextview.setText("Selected Image : " + answer);
-        saveAnswer();
     }
 
     public void saveAnswer() {
@@ -129,7 +128,6 @@ public class ImageAnswerFragment extends Fragment {
 
     @Override
     public void onPause() {
-        saveAnswer();
         super.onPause();
     }
 }

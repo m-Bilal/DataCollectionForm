@@ -75,6 +75,7 @@ public class AnswerListFragment extends Fragment {
         final ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Loading");
         progressDialog.show();
+        progressDialog.setCanceledOnTouchOutside(true);
 
         FormAnswerModel.syncUploadToServer(context, formAnswerModel, new CallbackHelper.IntCallback() {
             @Override

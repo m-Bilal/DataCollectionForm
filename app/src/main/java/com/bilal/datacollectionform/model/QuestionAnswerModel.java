@@ -1,6 +1,10 @@
 package com.bilal.datacollectionform.model;
 
 import android.content.Context;
+import android.net.Uri;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -52,6 +56,8 @@ public class QuestionAnswerModel extends RealmObject {
         realm.close();
     }
 
+
+
     public static RealmResults<QuestionAnswerModel> getAllModelsForFormId(Context context, FormAnswerModel formAnswerModel) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
@@ -60,10 +66,10 @@ public class QuestionAnswerModel extends RealmObject {
         return realmResults;
     }
 
-    public static FormAnswerModel getModelForPrimaryKey(Context context, int key) {
+    public static QuestionAnswerModel getModelForPrimaryKey(Context context, int key) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
-        FormAnswerModel formAnswerModel = realm.where(FormAnswerModel.class).equalTo("primaryKey", key).findFirst();
-        return formAnswerModel;
+        QuestionAnswerModel model = realm.where(QuestionAnswerModel.class).equalTo("primaryKey", key).findFirst();
+        return model;
     }
 }

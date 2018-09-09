@@ -94,8 +94,7 @@ public class RadioButtonAnswerFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onPause() {
+    public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
             callback.updateAnswer(questionAnswerModel);
@@ -106,6 +105,10 @@ public class RadioButtonAnswerFragment extends Fragment {
             questionAnswerModel.formId = formQuestionModel.formId;
             callback.addAnswer(questionAnswerModel);
         }
+    }
+
+    @Override
+    public void onPause() {
         super.onPause();
     }
 
@@ -166,12 +169,11 @@ public class RadioButtonAnswerFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (radioButton.isChecked() == true) {
-                            radioButton.setChecked(false);
-                            answer = "";
-                        } else {
-                            radioButton.setChecked(true);
                             int pos = getAdapterPosition();
                             answer = formQuestionModel.optionList.get(pos).value;
+
+                        } else {
+                            answer = "";
                         }
                         adapter.notifyDataSetChanged();
                     }

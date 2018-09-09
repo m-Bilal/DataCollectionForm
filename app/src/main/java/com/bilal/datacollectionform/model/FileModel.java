@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.FileChooser;
 import com.bilal.datacollectionform.request.VolleyMultipartRequest;
 
 import java.io.BufferedInputStream;
@@ -24,6 +25,8 @@ import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
+
+import static java.security.AccessController.getContext;
 
 public class FileModel extends RealmObject {
 
@@ -68,7 +71,7 @@ public class FileModel extends RealmObject {
         return bytes;
     }
 
-    public static RealmResults<FileModel> getAllUnscyncedModels(Context context) {
+    public static RealmResults<FileModel> getAllUnsyncedModels(Context context) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         RealmResults<FileModel> realmResults = realm.where(FileModel.class)
@@ -79,7 +82,7 @@ public class FileModel extends RealmObject {
     public void syncUploadToServer(final Context context, final FileModel fileModel, final CallbackHelper.Callback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         Uri uri = Uri.parse(fileModel.uri);
-        final File file = new File(uri.getPath());
+        final File file = new File(FileChooser.getPath(context,uri));
         final byte[] fileBytes = getBytesForFile(file);
         final FileModel asyncModel = new FileModel(fileModel);
         String url = "http://rdaps.com/form/api/filesubmit.php";
@@ -185,7 +188,7 @@ public class FileModel extends RealmObject {
         realm.close();
     }
 
-    public void saveToRealm(Context context, FileModel model) {
+    public static void saveToRealm(Context context, FileModel model) {
         Realm.init(context);
         model.primaryKey = PrimaryKeyModel.getFileModelPrimaryKey(context);
         Realm realm = Realm.getDefaultInstance();
@@ -195,7 +198,7 @@ public class FileModel extends RealmObject {
         realm.close();
     }
 
-    public void deleteAllFromRealm(Context context) {
+    public static void deleteAllFromRealm(Context context) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         RealmResults<FileModel> realmResults = realm.where(FileModel.class).findAll();

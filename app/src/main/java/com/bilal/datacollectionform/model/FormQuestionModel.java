@@ -27,7 +27,7 @@ import io.realm.annotations.PrimaryKey;
 public class FormQuestionModel extends RealmObject{
 
     @Ignore
-    private final static String TAG = "FromAnswerModel";
+    private final static String TAG = "FormQuestionModel";
 
     public static final String TYPE_TEXT = "text";
     public static final String TYPE_DROPDOWN = "dropdown";
@@ -38,6 +38,7 @@ public class FormQuestionModel extends RealmObject{
     public static final String TYPE_RADIO_BUTTON= "radio";
     public static final String TYPE_EMAIL = "email";
     public static final String TYPE_TIME = "time";
+    public static final String TYPE_IMAGE = "image";
     public static final String TYPE_HIDDEN = "hidden";
     public static final String TYPE_PARAGRAPH = "para";
     public static final String TYPE_SUBMIT = "submitt";

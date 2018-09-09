@@ -1,6 +1,7 @@
 package com.bilal.datacollectionform.model;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -10,6 +11,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.Helper;
+import com.bilal.datacollectionform.service.FileUploadService;
 
 import org.json.JSONObject;
 
@@ -61,11 +64,41 @@ public class FormAnswerModel extends RealmObject {
             jsonObject.put("0", formInfo);
             int pos = 1;
             for (QuestionAnswerModel i : questionAnswerModelRealmList) {
-                JSONObject questionJson = new JSONObject();
-                questionJson.put("label", i.label);
-                questionJson.put("value", i.value);
-                questionJson.put("type", i.type);
-                jsonObject.put("" + pos++, questionJson);
+                if (i.type.equals(FormQuestionModel.TYPE_FILE_UPLOAD) || i.type.equals(FormQuestionModel.TYPE_IMAGE)) {
+                    JSONObject questionJson = new JSONObject();
+                    questionJson.put("label", i.label);
+                    questionJson.put("type", i.type);
+                    jsonObject.put("" + pos++, questionJson);
+                    if (i.value != null) {
+                        if (i.value.length() > 0) {
+                            Uri uri = Uri.parse(i.value);
+                            questionJson.put("value", Helper.getFileName(context, uri));
+
+                            FileModel fileModel = new FileModel();
+                            fileModel.uri = i.value;
+                            fileModel.questionAnswerPrimaryKey = i.primaryKey;
+                            fileModel.formId = i.formId;
+                            if (i.type.equals(FormQuestionModel.TYPE_IMAGE)) {
+                                fileModel.type = FileModel.TYPE_IMAGE;
+                            } else {
+                                fileModel.type = FileModel.TYPE_FILE;
+                            }
+                            fileModel.syncedWithServer = false;
+                            FileModel.saveToRealm(context, fileModel);
+
+                        } else {
+                            questionJson.put("value","");
+                        }
+                    } else {
+                        questionJson.put("value","");
+                    }
+                } else {
+                    JSONObject questionJson = new JSONObject();
+                    questionJson.put("label", i.label);
+                    questionJson.put("value", i.value);
+                    questionJson.put("type", i.type);
+                    jsonObject.put("" + pos++, questionJson);
+                }
             }
             Realm.init(context);
             Realm realm = Realm.getDefaultInstance();
@@ -73,6 +106,7 @@ public class FormAnswerModel extends RealmObject {
             this.json = jsonObject.toString();
             realm.commitTransaction();
             realm.close();
+            FileUploadService.startService(context);
         } catch (Exception e) {
             Log.e(TAG, "saveJson(), exception : " + e.toString());
             e.printStackTrace();

@@ -99,8 +99,7 @@ public class TextAnswerFragment extends Fragment {
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    @Override
-    public void onPause() {
+    public void saveAnswer() {
         closeKeyboard(answerEdittext);
         if (alreadyAnswered) {
             questionAnswerModel.value = answerEdittext.getText().toString();
@@ -112,6 +111,10 @@ public class TextAnswerFragment extends Fragment {
             questionAnswerModel.formId = formQuestionModel.formId;
             callback.addAnswer(questionAnswerModel);
         }
+    }
+
+    @Override
+    public void onPause() {
         super.onPause();
     }
 }

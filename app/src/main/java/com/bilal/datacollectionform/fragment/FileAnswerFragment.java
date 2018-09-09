@@ -94,9 +94,8 @@ public class FileAnswerFragment extends Fragment {
 
     public void setResultUri(Uri uri) {
         answerUri = uri;
-        answer = Helper.getFileName(context, answerUri);
-        selectedFileTextview.setText("Selected File : " + answer);
-        saveAnswer();
+        answer = uri.toString();
+        selectedFileTextview.setText("Selected File : " + Helper.getFileName(context, Uri.parse(answer)));
     }
 
     public void saveAnswer() {
@@ -118,8 +117,7 @@ public class FileAnswerFragment extends Fragment {
             questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
-            selectedFileTextview.setText("Selected File : " + answer);
-
+            selectedFileTextview.setText("Selected File : " + Helper.getFileName(context, Uri.parse(answer)));
         } catch (Exception e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
@@ -130,7 +128,6 @@ public class FileAnswerFragment extends Fragment {
 
     @Override
     public void onPause() {
-        saveAnswer();
         super.onPause();
     }
 }
