@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.activity.FormQuestionActivity;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.FileChooser;
 import com.bilal.datacollectionform.helper.Helper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
@@ -83,9 +84,9 @@ public class ImageAnswerFragment extends Fragment {
     }
 
     private void openImageSelector() {
-        Intent intent = new Intent()
-                .setType("image/*")
-                .setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(
+                Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         getActivity().startActivityForResult(Intent.createChooser(intent, "Select a picture"),
                 FormQuestionActivity.INTENT_SELECT_IMAGE_REQUEST_CODE);
@@ -94,7 +95,7 @@ public class ImageAnswerFragment extends Fragment {
     public void setResultUri(Uri uri) {
         answerUri = uri;
         answer = uri.toString();
-        selectedFileTextview.setText("Selected Image : " + answer);
+        selectedFileTextview.setText("Selected Image : " + Helper.getFileName(context, Uri.parse(answer)));
     }
 
     public void saveAnswer() {
@@ -116,7 +117,7 @@ public class ImageAnswerFragment extends Fragment {
             questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
-            selectedFileTextview.setText("Selected Image : " + answer);
+            selectedFileTextview.setText("Selected Image : " + Helper.getFileName(context, Uri.parse(answer)));
 
         } catch (Exception e){
             questionAnswerModel = new QuestionAnswerModel();

@@ -2,6 +2,7 @@ package com.bilal.datacollectionform.model;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -36,6 +37,7 @@ public class FileModel extends RealmObject {
     @PrimaryKey
     public int primaryKey;
     public String uri;
+    public String path;
     public int questionAnswerPrimaryKey;
     public int formId;
     public int type;
@@ -81,8 +83,7 @@ public class FileModel extends RealmObject {
 
     public void syncUploadToServer(final Context context, final FileModel fileModel, final CallbackHelper.Callback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
-        Uri uri = Uri.parse(fileModel.uri);
-        final File file = new File(FileChooser.getPath(context,uri));
+        final File file = new File(fileModel.path);
         final byte[] fileBytes = getBytesForFile(file);
         final FileModel asyncModel = new FileModel(fileModel);
         String url = "http://rdaps.com/form/api/filesubmit.php";
@@ -114,6 +115,8 @@ public class FileModel extends RealmObject {
                 NetworkResponse networkResponse = error.networkResponse;
                 String errorMessage = "Unknown error";
                 callback.onFailure();
+                Log.d(TAG, "syncUploadToServer, onErrorResponse: " + error.toString());
+                error.printStackTrace();
                 /*
                 if (networkResponse == null) {
                     if (error.getClass().equals(TimeoutError.class)) {

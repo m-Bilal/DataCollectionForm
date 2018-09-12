@@ -11,14 +11,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.FileChooser;
 import com.bilal.datacollectionform.helper.Helper;
 import com.bilal.datacollectionform.service.FileUploadService;
 
 import org.json.JSONObject;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -76,6 +75,11 @@ public class FormAnswerModel extends RealmObject {
 
                             FileModel fileModel = new FileModel();
                             fileModel.uri = i.value;
+                            if (i.type.equals(FormQuestionModel.TYPE_FILE_UPLOAD)) {
+                                fileModel.path = FileChooser.getPath(context, uri);
+                            } else if (i.type.equals(FormQuestionModel.TYPE_IMAGE)) {
+                                fileModel.path = FileChooser.getImageFilePath(context, uri);
+                            }
                             fileModel.questionAnswerPrimaryKey = i.primaryKey;
                             fileModel.formId = i.formId;
                             if (i.type.equals(FormQuestionModel.TYPE_IMAGE)) {
