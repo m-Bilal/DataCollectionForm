@@ -1,5 +1,6 @@
 package com.bilal.datacollectionform.activity;
 
+import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -130,7 +131,8 @@ public class FormListActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.menu_item_notification) {
-            Toast.makeText(this, "Action clicked", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(context, UnsyncedListActivity.class);
+            startActivity(intent);
             return true;
         }
 

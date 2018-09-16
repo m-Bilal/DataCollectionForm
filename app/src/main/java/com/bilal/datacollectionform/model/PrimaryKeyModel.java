@@ -111,12 +111,12 @@ public class PrimaryKeyModel extends RealmObject{
         Realm realm = Realm.getDefaultInstance();
         PrimaryKeyModel primaryKeyModel = new PrimaryKeyModel();
         primaryKeyModel.id = ID;
-        primaryKeyModel.questionOptionPrimaryKey = 0;
-        primaryKeyModel.questionConditionPrimaryKey = 0;
-        primaryKeyModel.formQuestionPrimaryKey = 0;
-        primaryKeyModel.formAnswerPrimaryKey = 0;
-        primaryKeyModel.questionAnswerPrimaryKey = 0;
-        primaryKeyModel.fileModelPrimaryKey = 0;
+        primaryKeyModel.questionOptionPrimaryKey = 1;
+        primaryKeyModel.questionConditionPrimaryKey = 1;
+        primaryKeyModel.formQuestionPrimaryKey = 1;
+        primaryKeyModel.formAnswerPrimaryKey = 1;
+        primaryKeyModel.questionAnswerPrimaryKey = 1;
+        primaryKeyModel.fileModelPrimaryKey = 1;
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(primaryKeyModel);
         realm.commitTransaction();

@@ -1,30 +1,42 @@
 package com.bilal.datacollectionform.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.fragment.HomeFragment;
+import com.bilal.datacollectionform.model.UserModel;
 
 public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private FrameLayout frameLayout;
+    private TextView toolbarTitleTextview;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = this;
+
         frameLayout = findViewById(R.id.frame_layout);
         toolbar = findViewById(R.id.toolbar);
+        toolbarTitleTextview = findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        UserModel userModel = UserModel.getUserFromRealm(this);
+        toolbarTitleTextview.setText(userModel.name);
 
         attachHomeFragment();
     }
@@ -52,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.menu_item_notification) {
-            Toast.makeText(MainActivity.this, "Action clicked", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(context, UnsyncedListActivity.class);
+            startActivity(intent);
             return true;
         }
 

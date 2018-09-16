@@ -22,8 +22,6 @@ import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
 import java.util.List;
 
-import io.realm.RealmResults;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -66,34 +64,14 @@ public class AnswerListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        syncFormWithServer(formAnswerModel);
+        saveFormToRealm(formAnswerModel);
 
         return v;
     }
 
-    private void syncFormWithServer(FormAnswerModel formAnswerModel) {
-        final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("Loading");
-        progressDialog.show();
-        progressDialog.setCanceledOnTouchOutside(true);
-
-        FormAnswerModel.syncUploadToServer(context, formAnswerModel, new CallbackHelper.IntCallback() {
-            @Override
-            public void onSuccess(int response) {
-                progressDialog.dismiss();
-                if (response == 1) {
-                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                progressDialog.dismiss();
-            }
-        });
-
+    private void saveFormToRealm(FormAnswerModel formAnswerModel) {
+        formAnswerModel.saveJson(context);
+        FormAnswerModel.setSyncedWithServer(context, formAnswerModel,false);
     }
 
     public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> {

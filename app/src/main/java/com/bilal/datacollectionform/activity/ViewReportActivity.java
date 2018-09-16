@@ -1,5 +1,7 @@
 package com.bilal.datacollectionform.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +13,7 @@ import com.bilal.datacollectionform.R;
 
 public class ViewReportActivity extends AppCompatActivity {
 
+    private Context context;
     private Toolbar toolbar;
 
     @Override
@@ -18,6 +21,7 @@ public class ViewReportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_report);
 
+        context = this;
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -41,7 +45,8 @@ public class ViewReportActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.menu_item_notification) {
-            Toast.makeText(this, "Action clicked", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(context, UnsyncedListActivity.class);
+            startActivity(intent);
             return true;
         }
 

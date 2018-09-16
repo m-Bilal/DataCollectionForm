@@ -47,7 +47,10 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     public final static int INTENT_SELECT_FILE_REQUEST_CODE = 1001;
     public final static int INTENT_SELECT_IMAGE_REQUEST_CODE = 1002;
 
+    private boolean deleteModel;
+
     private Context context;
+    private TextView toolbarTitleTextview;
     private FormModel formModel;
     private List<Fragment> fragmentList;
     private Toolbar toolbar;
@@ -66,12 +69,14 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         setContentView(R.layout.activity_form_question);
 
         context = this;
+        deleteModel = false;
 
         frameLayout = findViewById(R.id.frame_layout);
         toolbar = findViewById(R.id.toolbar);
         previousTextview = findViewById(R.id.textview_previous);
         nextTextview = findViewById(R.id.textview_next);
         newEntryTextview = findViewById(R.id.textview_new_entry);
+        toolbarTitleTextview = findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -81,6 +86,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         formModel = FormModel.getFromForId(context, formId);
         formAnswerModel = FormAnswerModel.createModel(context, UserModel.getUserFromRealm(context),
                 formModel);
+
+        toolbarTitleTextview.setText(formModel.formName);
 
         createQuestionFragments();
         attachFirstFragment();
@@ -232,7 +239,9 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
 
     private void attachNextFragment() {
         askFragmentToSaveAnswer();
-        pos++;
+        if (pos < fragmentList.size()) {
+            pos++;
+        }
         if (pos < fragmentList.size()) {
             frameLayout.removeAllViews();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragmentList.get(pos)).commit();
@@ -256,8 +265,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
 
     private void attachPreviousFragment() {
         askFragmentToSaveAnswer();
-        pos--;
-        if (pos >= 0) {
+        if (pos > 0) {
+            pos--;
             frameLayout.removeAllViews();
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragmentList.get(pos)).commit();
             if (pos == fragmentList.size() - 1) {

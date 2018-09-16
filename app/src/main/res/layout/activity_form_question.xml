@@ -12,6 +12,7 @@
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true"
         android:background="@color/colorDarkOrange"
+        app:subtitleTextColor="@color/myWhite"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
         <TextView
@@ -20,22 +21,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Form"
-            android:textColor="#FFF"
-            android:textSize="24sp" />
+            android:textColor="@color/myBlack"
+            android:textSize="20sp" />
     </android.support.v7.widget.Toolbar>
-
-    <FrameLayout
-        android:id="@+id/frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/linear_layout"
-        android:layout_below="@id/toolbar" />
 
     <LinearLayout
         android:id="@+id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+
+        android:layout_below="@id/toolbar"
         android:orientation="horizontal">
 
         <TextView
@@ -43,10 +38,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="#FFEB3B"
+            android:background="@color/myLightGray"
             android:padding="12dp"
-            android:text="Previous"
-            android:textAlignment="center"
+            android:text="  Previous"
+
             android:textColor="#000"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -56,21 +51,31 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="#4CAF50"
+            android:background="@color/myDarkGray"
             android:padding="12dp"
-            android:text="Next"
-            android:textAlignment="center"
+            android:text="Next  "
+            android:gravity="right"
+            android:layout_gravity="right"
             android:textColor="#FFF"
             android:textSize="16sp"
             android:textStyle="bold" />
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/linear_layout"
+        />
+
+
+
     <TextView
         android:id="@+id/textview_new_entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#4CAF50"
+      android:layout_below="@id/toolbar"
+        android:background="@color/myDarkGray"
         android:padding="12dp"
         android:text="Create Another Entry"
         android:textAlignment="center"

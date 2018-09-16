@@ -182,21 +182,20 @@ public class FileModel extends RealmObject {
         queue.add(multipartRequest);
     }
 
-    public void setSyncedWithServer(Context context, boolean synced) {
+    public static void setSyncedWithServer(Context context, FileModel model,boolean synced) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        this.syncedWithServer = synced;
+        model.syncedWithServer = synced;
         realm.commitTransaction();
         realm.close();
     }
 
     public static void saveToRealm(Context context, FileModel model) {
         Realm.init(context);
-        model.primaryKey = PrimaryKeyModel.getFileModelPrimaryKey(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        realm.copyToRealm(model);
+        realm.copyToRealmOrUpdate(model);
         realm.commitTransaction();
         realm.close();
     }

@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#FFF</color>
     <color name="colorPrimaryDark">#000</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#FDD835</color>
 
     <color name="colorBlack">#000</color>
     <color name="colorYellow">#FDD835</color>
@@ -12,4 +12,47 @@
     <color name="colorBlue">#2196F3</color>
     <color name="colorLightGrey">#E0E0E0</color>
     <color name="colorVeryLightOrange">#FFCCBC</color>
+
+
+    <color name="primary_color">#fecb0a</color>
+    <color name="secondary_color">#D44E33</color>
+
+
+    <color name="myWhite">#FFFFFF</color>
+    <color name="myBlack">#000000</color>
+
+    <color name="textGray">#BDBDBD</color>
+
+    <color name="myRed">#FF4081</color>
+    <color name="myGreen">#558B2F</color>
+    <color name="myBlue">#23c6c8</color>
+    <color name="myYellow">#fecb0a</color>
+    <color name="myOrange">#D44E33</color>
+
+    <color name="myEdGreen">#558B2F</color>
+
+    <color name="myDarkGray">#333333</color>
+    <color name="myLightGray">#999999</color>
+    <color name="myGrayBackground">#f2f2f2</color>
+    <color name="myImageBorder">#f2f2f2</color>
+    <color name="myImageBorderDark">#999999</color>
+
+
+    <color name="pressed_color">#4d90fe</color>
+    <color name="default_color">#ffffff</color>
+
+
+    <color name="colorTextPrimary">#FFFFFF</color>
+    <color name="colorTextDisable">#66FFFFFF</color>
+
+
+    <color name="arrow">#44000000</color>
+    <color name="base">#4C84C4</color>
+
+    <color name="floating_label">#44000000</color>
+    <color name="error">#E7492E</color>
+
+    <color name="hint">#44000000</color>
+    <color name="highlight">#4C84C4</color>
+
 </resources>

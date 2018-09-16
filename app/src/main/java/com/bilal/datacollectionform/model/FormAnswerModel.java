@@ -13,15 +13,19 @@ import com.android.volley.toolbox.Volley;
 import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.helper.FileChooser;
 import com.bilal.datacollectionform.helper.Helper;
-import com.bilal.datacollectionform.service.FileUploadService;
+import com.bilal.datacollectionform.service.FileUploadFirebaseService;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
@@ -88,6 +92,7 @@ public class FormAnswerModel extends RealmObject {
                                 fileModel.type = FileModel.TYPE_FILE;
                             }
                             fileModel.syncedWithServer = false;
+                            fileModel.primaryKey = PrimaryKeyModel.getFileModelPrimaryKey(context);
                             FileModel.saveToRealm(context, fileModel);
 
                         } else {
@@ -104,20 +109,20 @@ public class FormAnswerModel extends RealmObject {
                     jsonObject.put("" + pos++, questionJson);
                 }
             }
+            FormAnswerModel.saveToRealm(context, this);
             Realm.init(context);
             Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
             this.json = jsonObject.toString();
             realm.commitTransaction();
             realm.close();
-            FileUploadService.startService(context);
         } catch (Exception e) {
             Log.e(TAG, "saveJson(), exception : " + e.toString());
             e.printStackTrace();
         }
     }
 
-    public static void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.IntCallback callback) {
+    public void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.IntCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         final FormAnswerModel asyncModel = new FormAnswerModel(formAnswerModel);
         String url = "http://rdaps.com/form/api/submit.php";
@@ -125,14 +130,14 @@ public class FormAnswerModel extends RealmObject {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        formAnswerModel.setSyncedWithServer(context, true);
+                        //formAnswerModel.setSyncedWithServer(context, true);
                         callback.onSuccess(Integer.parseInt(response));
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        formAnswerModel.setSyncedWithServer(context, false);
+                        //formAnswerModel.setSyncedWithServer(context, false);
                         Log.e(TAG, "syncUploadToServer, onErrorResponse : " + error.toString());
                         error.printStackTrace();
                         callback.onFailure();
@@ -160,11 +165,11 @@ public class FormAnswerModel extends RealmObject {
         queue.add(postRequest);
     }
 
-    public void setSyncedWithServer(Context context,boolean synced) {
+    public static void setSyncedWithServer(Context context, FormAnswerModel model, boolean synced) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        this.syncedWithServer = synced;
+        model.syncedWithServer = synced;
         realm.commitTransaction();
         realm.close();
     }
@@ -187,7 +192,7 @@ public class FormAnswerModel extends RealmObject {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        realm.copyToRealm(model);
+        realm.copyToRealmOrUpdate(model);
         realm.commitTransaction();
         realm.close();
     }
@@ -217,5 +222,19 @@ public class FormAnswerModel extends RealmObject {
         formAnswerModel.deleteFromRealm();
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static ArrayList<FormAnswerModel> getAllUnsyncedModels(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormAnswerModel> realmResults = realm.where(FormAnswerModel.class)
+                .equalTo("syncedWithServer", false).findAll();
+        ArrayList<FormAnswerModel> list = new ArrayList<>();
+        for (FormAnswerModel i : realmResults) {
+            FormAnswerModel model = new FormAnswerModel(i);
+            list.add(model);
+        }
+        realm.close();
+        return  list;
     }
 }
