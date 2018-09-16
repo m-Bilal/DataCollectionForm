@@ -26,6 +26,7 @@ import com.bilal.datacollectionform.model.QuestionAnswerModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -40,9 +41,10 @@ public class CheckboxAnswerFragment extends Fragment {
     private TextView textView;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
+    //private FormAnswerModel formAnswerModel;
     private MyRecyclerViewAdapter adapter;
     private List<String> answerList;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -69,6 +71,8 @@ public class CheckboxAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
         recyclerView = v.findViewById(R.id.recyclerview);
         textView = v.findViewById(R.id.textview_question);
 
@@ -80,18 +84,22 @@ public class CheckboxAnswerFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
+        //formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
 
-        checkIfAlreadyAnswered();
-
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
+    }
+
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
     }
 
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             parseAnswer();
             alreadyAnswered = true;
         } catch (Exception e){
@@ -100,6 +108,7 @@ public class CheckboxAnswerFragment extends Fragment {
             answerList = new ArrayList<>();
         }
         finally {
+            Log.d(TAG, "checkIfAlreadyAnswered " + alreadyAnswered);
             adapter.notifyDataSetChanged();
         }
     }
@@ -130,7 +139,7 @@ public class CheckboxAnswerFragment extends Fragment {
     public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = getAnswersAsString();
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;

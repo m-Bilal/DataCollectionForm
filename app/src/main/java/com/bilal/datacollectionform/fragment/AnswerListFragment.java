@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -53,9 +55,10 @@ public class AnswerListFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview);
         int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
         FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
-        questionAnswerModels = formAnswerModel.questionAnswerModelRealmList;
+        questionAnswerModels = new LinkedList<>();
+        //questionAnswerModels = formAnswerModel.questionAnswerModelRealmList;
         //questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
-        formAnswerModel.saveJson(context);
+        //formAnswerModel.saveJson(context);
 
         adapter = new MyRecyclerViewAdapter();
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
@@ -64,9 +67,16 @@ public class AnswerListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        saveFormToRealm(formAnswerModel);
+        fragmentCallback.setAnswerListInCurrentFragment();
+        //saveFormToRealm(formAnswerModel);
 
         return v;
+    }
+
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        adapter.notifyDataSetChanged();
     }
 
     private void saveFormToRealm(FormAnswerModel formAnswerModel) {

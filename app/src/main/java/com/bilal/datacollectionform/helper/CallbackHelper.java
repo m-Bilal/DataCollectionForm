@@ -28,11 +28,12 @@ public class CallbackHelper {
 
     public interface FragmentAnswerCallback {
         void addAnswer(QuestionAnswerModel questionAnswerModel);
-        void updateAnswer(QuestionAnswerModel questionAnswerModel);
+        void updateAnswer(int position, QuestionAnswerModel questionAnswerModel);
     }
 
     public interface FragmentCallback {
         void setCurrentFragment(Fragment fragment);
+        void setAnswerListInCurrentFragment();
     }
 
     public interface FileUploadServiceCallback {

@@ -20,6 +20,9 @@ import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -33,6 +36,7 @@ public class TextAnswerFragment extends Fragment {
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -59,6 +63,9 @@ public class TextAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
+
         questionTextview = v.findViewById(R.id.textview_question);
         answerEdittext = v.findViewById(R.id.edittext_answer);
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
@@ -69,7 +76,7 @@ public class TextAnswerFragment extends Fragment {
             answerEdittext.setMaxLines(1);
         }
 
-        checkIfAlreadyAnswered();
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
     }
 
@@ -77,10 +84,15 @@ public class TextAnswerFragment extends Fragment {
         return Helper.validateEmail(answerEdittext.getText().toString());
     }
 
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
+    }
+
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             alreadyAnswered = true;
             answerEdittext.setText(questionAnswerModel.value);
             Log.d(TAG, "checkIfAlreadyAnswered, true");
@@ -89,6 +101,9 @@ public class TextAnswerFragment extends Fragment {
             alreadyAnswered = false;
             Log.d(TAG, "checkIfAlreadyAnswered, false");
         }
+
+        Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
+
     }
 
     private void closeKeyboard(View view) {
@@ -103,7 +118,7 @@ public class TextAnswerFragment extends Fragment {
         closeKeyboard(answerEdittext);
         if (alreadyAnswered) {
             questionAnswerModel.value = answerEdittext.getText().toString();
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;

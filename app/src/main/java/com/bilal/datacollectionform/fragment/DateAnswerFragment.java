@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import com.bilal.datacollectionform.model.QuestionAnswerModel;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +42,7 @@ public class DateAnswerFragment extends Fragment {
     private SimpleDateFormat simpleDateFormat;
     private Date date;
     private DatePicker datePicker;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -67,14 +71,16 @@ public class DateAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
         questionTextView = v.findViewById(R.id.textview_question);
         datePicker = v.findViewById(R.id.datepicker);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
-        checkIfAlreadyAnswered();
 
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
     }
 
@@ -100,10 +106,15 @@ public class DateAnswerFragment extends Fragment {
         answer = simpleDateFormat.format(date);
     }
 
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
+    }
+
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
             simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -116,12 +127,13 @@ public class DateAnswerFragment extends Fragment {
             initDatePicker(new Date());
             answer = "";
         }
+        Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
     }
 
     public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;

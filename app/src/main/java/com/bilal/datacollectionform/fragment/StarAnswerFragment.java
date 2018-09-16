@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,9 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +37,7 @@ public class StarAnswerFragment extends Fragment {
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -60,13 +65,15 @@ public class StarAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
+
         ratingBar = v.findViewById(R.id.ratingbar);
         textView = v.findViewById(R.id.textview_question);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
-        checkIfAlreadyAnswered();
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -75,13 +82,19 @@ public class StarAnswerFragment extends Fragment {
             }
         });
 
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
+    }
+
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
     }
 
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             answer = questionAnswerModel.value;
             ratingBar.setRating(Float.parseFloat(answer));
             alreadyAnswered = true;
@@ -90,6 +103,7 @@ public class StarAnswerFragment extends Fragment {
             alreadyAnswered = false;
             answer = "0";
         } finally {
+            Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
             ratingBar.setRating(Float.parseFloat(answer));
         }
     }
@@ -97,8 +111,9 @@ public class StarAnswerFragment extends Fragment {
     public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
+            questionAnswerModel = new QuestionAnswerModel();
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;
             questionAnswerModel.value = answer;

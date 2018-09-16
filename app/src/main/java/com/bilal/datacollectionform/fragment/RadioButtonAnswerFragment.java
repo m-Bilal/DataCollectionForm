@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,9 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +39,7 @@ public class RadioButtonAnswerFragment extends Fragment {
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
     private MyRecyclerViewAdapter adapter;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -62,6 +67,9 @@ public class RadioButtonAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
+
         recyclerView = v.findViewById(R.id.recyclerview);
         textView = v.findViewById(R.id.textview_question);
 
@@ -74,15 +82,14 @@ public class RadioButtonAnswerFragment extends Fragment {
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
-        checkIfAlreadyAnswered();
 
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
     }
 
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             answer = questionAnswerModel.value;
             alreadyAnswered = true;
         } catch (Exception e) {
@@ -90,14 +97,21 @@ public class RadioButtonAnswerFragment extends Fragment {
             alreadyAnswered = false;
             answer = "";
         } finally {
+            Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
     }
 
     public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;

@@ -53,6 +53,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     private TextView toolbarTitleTextview;
     private FormModel formModel;
     private List<Fragment> fragmentList;
+    private LinkedList<QuestionAnswerModel> answerList;
     private Toolbar toolbar;
     private FrameLayout frameLayout;
     private TextView previousTextview;
@@ -86,6 +87,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         formModel = FormModel.getFromForId(context, formId);
         formAnswerModel = FormAnswerModel.createModel(context, UserModel.getUserFromRealm(context),
                 formModel);
+        answerList = new LinkedList<>();
 
         toolbarTitleTextview.setText(formModel.formName);
 
@@ -232,6 +234,31 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         }
     }
 
+    @Override
+    public void setAnswerListInCurrentFragment() {
+        if (currentFragment instanceof AnswerListFragment) {
+            ((AnswerListFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof CheckboxAnswerFragment) {
+            ((CheckboxAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof DateAnswerFragment) {
+            ((DateAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof DropdownAnswerFragment) {
+            ((DropdownAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof FileAnswerFragment) {
+            ((FileAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof ImageAnswerFragment) {
+            ((ImageAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof RadioButtonAnswerFragment) {
+            ((RadioButtonAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof StarAnswerFragment) {
+            ((StarAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof TextAnswerFragment) {
+            ((TextAnswerFragment) currentFragment).setAnswerList(answerList);
+        } else if (currentFragment instanceof TimeAnswerFragment) {
+            ((TimeAnswerFragment) currentFragment).setAnswerList(answerList);
+        }
+    }
+
     private void attachFirstFragment() {
         frameLayout.removeAllViews();
         getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, fragmentList.get(pos)).commit();
@@ -296,12 +323,14 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
 
     @Override
     public void addAnswer(QuestionAnswerModel questionAnswerModel) {
-        formAnswerModel.addAnswer(context, questionAnswerModel);
+        answerList.add(questionAnswerModel);
+        //formAnswerModel.addAnswer(context, questionAnswerModel);
     }
 
     @Override
-    public void updateAnswer(QuestionAnswerModel questionAnswerModel) {
-        QuestionAnswerModel.updateInRealm(context, questionAnswerModel);
+    public void updateAnswer(int position, QuestionAnswerModel questionAnswerModel) {
+        answerList.set(position, questionAnswerModel);
+        //QuestionAnswerModel.updateInRealm(context, questionAnswerModel);
     }
 
     @Override

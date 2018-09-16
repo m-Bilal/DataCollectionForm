@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,9 @@ import com.bilal.datacollectionform.helper.Helper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,6 +40,7 @@ public class FileAnswerFragment extends Fragment {
     private QuestionAnswerModel questionAnswerModel;
     private FormAnswerModel formAnswerModel;
     private Uri answerUri;
+    private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
     private int position;
@@ -64,6 +69,9 @@ public class FileAnswerFragment extends Fragment {
         int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
+        Log.d(TAG, "onCreateView, position " + position);
+
+
         questionTextView = v.findViewById(R.id.textview_question);
         button = v.findViewById(R.id.button);
         selectedFileTextview = v.findViewById(R.id.textview_selected_file);
@@ -71,7 +79,6 @@ public class FileAnswerFragment extends Fragment {
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
-        checkIfAlreadyAnswered();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +87,7 @@ public class FileAnswerFragment extends Fragment {
             }
         });
 
+        fragmentCallback.setAnswerListInCurrentFragment();
         return v;
     }
 
@@ -98,10 +106,16 @@ public class FileAnswerFragment extends Fragment {
         selectedFileTextview.setText("Selected File : " + Helper.getFileName(context, Uri.parse(answer)));
     }
 
+    public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
+        Log.d(TAG, "setAnswerList()");
+        this.questionAnswerModels = questionAnswerModels;
+        checkIfAlreadyAnswered();
+    }
+
     public void saveAnswer() {
         if (alreadyAnswered) {
             questionAnswerModel.value = answer;
-            callback.updateAnswer(questionAnswerModel);
+            callback.updateAnswer(position, questionAnswerModel);
         } else {
             questionAnswerModel.label = formQuestionModel.label;
             questionAnswerModel.type = formQuestionModel.type;
@@ -113,17 +127,20 @@ public class FileAnswerFragment extends Fragment {
 
     private void checkIfAlreadyAnswered() {
         try {
-            questionAnswerModel = formAnswerModel.questionAnswerModelRealmList.get(position);
-            questionAnswerModel = new QuestionAnswerModel(questionAnswerModel);
+            questionAnswerModel = questionAnswerModels.get(position);
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
             selectedFileTextview.setText("Selected File : " + Helper.getFileName(context, Uri.parse(answer)));
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             answer = "";
-            selectedFileTextview.setText("Selected File : " + answer);
+            selectedFileTextview.setText(answer);
+        } catch (Exception e) {
+            selectedFileTextview.setText("No File Selected");
         }
+
+        Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
     }
 
     @Override
