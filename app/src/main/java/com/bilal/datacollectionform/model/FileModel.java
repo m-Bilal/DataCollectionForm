@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +55,7 @@ public class FileModel extends RealmObject {
         this.formId = model.formId;
         this.type = model.type;
         this.syncedWithServer = model.syncedWithServer;
+        this.path = model.path;
     }
 
     private static byte[] getBytesForFile(File file) {
@@ -73,17 +75,33 @@ public class FileModel extends RealmObject {
         return bytes;
     }
 
-    public static RealmResults<FileModel> getAllUnsyncedModels(Context context) {
+    public static ArrayList<FileModel> getAllUnsyncedModels(Context context) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         RealmResults<FileModel> realmResults = realm.where(FileModel.class)
                 .equalTo("syncedWithServer", false).findAll();
-        return realmResults;
+        ArrayList<FileModel> list = new ArrayList<>();
+        for (FileModel i : realmResults) {
+            list.add(new FileModel(i));
+        }
+        realm.close();
+        return list;
     }
 
-    public void syncUploadToServer(final Context context, final FileModel fileModel, final CallbackHelper.Callback callback) {
+    public static void syncUploadToServer(final Context context, final FileModel fileModel, final CallbackHelper.Callback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
-        final File file = new File(fileModel.path);
+        String path;
+        if (fileModel.path ==  null) {
+            if (fileModel.type == FileModel.TYPE_FILE) {
+                path = FileChooser.getPath(context, Uri.parse(fileModel.uri));
+            } else {
+                path = FileChooser.getImageFilePath(context, Uri.parse(fileModel.uri));
+            }
+        } else {
+            path = fileModel.path;
+        }
+
+        final File file = new File(path);
         final byte[] fileBytes = getBytesForFile(file);
         final FileModel asyncModel = new FileModel(fileModel);
         String url = "http://rdaps.com/form/api/filesubmit.php";
@@ -182,13 +200,21 @@ public class FileModel extends RealmObject {
         queue.add(multipartRequest);
     }
 
-    public static void setSyncedWithServer(Context context, FileModel model,boolean synced) {
+    public static void setSyncedWithServer(Context context, FileModel model, boolean synced) {
+        FileModel fileModel = FileModel.getModelForPrimaryKey(context, model.primaryKey);
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        model.syncedWithServer = synced;
+        fileModel.syncedWithServer = synced;
+        realm.copyToRealmOrUpdate(fileModel);
         realm.commitTransaction();
         realm.close();
+    }
+
+    public static FileModel getModelForPrimaryKey(Context context, int primaryKey) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileModel.class).equalTo("primaryKey", primaryKey).findFirst();
     }
 
     public static void saveToRealm(Context context, FileModel model) {

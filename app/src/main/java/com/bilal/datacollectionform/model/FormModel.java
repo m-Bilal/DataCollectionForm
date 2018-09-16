@@ -27,6 +27,8 @@ import io.realm.annotations.PrimaryKey;
 
 public class FormModel extends RealmObject {
 
+    // The model from server that contains all questions as a list
+
     @Ignore
     private final static String TAG = "FromModel";
 

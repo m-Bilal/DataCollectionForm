@@ -114,6 +114,7 @@ public class FormAnswerModel extends RealmObject {
             Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
             this.json = jsonObject.toString();
+            realm.copyToRealmOrUpdate(this);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -122,7 +123,7 @@ public class FormAnswerModel extends RealmObject {
         }
     }
 
-    public void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.IntCallback callback) {
+    public static void syncUploadToServer(final Context context, final FormAnswerModel formAnswerModel, final CallbackHelper.IntCallback callback) {
         RequestQueue queue = Volley.newRequestQueue(context);
         final FormAnswerModel asyncModel = new FormAnswerModel(formAnswerModel);
         String url = "http://rdaps.com/form/api/submit.php";
@@ -166,10 +167,12 @@ public class FormAnswerModel extends RealmObject {
     }
 
     public static void setSyncedWithServer(Context context, FormAnswerModel model, boolean synced) {
+        FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, model.primaryKey);
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        model.syncedWithServer = synced;
+        formAnswerModel.syncedWithServer = synced;
+        realm.copyToRealmOrUpdate(formAnswerModel);
         realm.commitTransaction();
         realm.close();
     }
@@ -184,6 +187,20 @@ public class FormAnswerModel extends RealmObject {
         formAnswerModel.captureDate = date.getTime();
         formAnswerModel.syncedWithServer = false;
         formAnswerModel.questionAnswerModelRealmList = new RealmList<>();
+        saveToRealm(context, formAnswerModel);
+        return new FormAnswerModel(formAnswerModel);
+    }
+
+    public static FormAnswerModel createModel(Context context, UserModel userModel, long time, FormModel formModel,
+                                              RealmList<QuestionAnswerModel> questionAnswerModelRealmList) {
+        int key = PrimaryKeyModel.getFormAnswerPrimaryKey(context);
+        FormAnswerModel formAnswerModel = new FormAnswerModel();
+        formAnswerModel.primaryKey = key;
+        formAnswerModel.formId = formModel.formId;
+        formAnswerModel.userId = userModel.userId;
+        formAnswerModel.captureDate = time;
+        formAnswerModel.syncedWithServer = false;
+        formAnswerModel.questionAnswerModelRealmList = questionAnswerModelRealmList;
         saveToRealm(context, formAnswerModel);
         return new FormAnswerModel(formAnswerModel);
     }

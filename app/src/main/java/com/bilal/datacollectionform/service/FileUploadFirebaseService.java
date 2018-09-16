@@ -39,7 +39,7 @@ public class FileUploadFirebaseService extends JobService {
             model.syncUploadToServer(getApplicationContext(), model, new CallbackHelper.Callback() {
                 @Override
                 public void onSuccess() {
-                    NotificationHelper.updateFileNotificationProgress(getApplicationContext(), notification,
+                    NotificationHelper.updateFileNotificationProgress(getApplicationContext(),
                             ++filesUploaded, 0 ,totalFiles);
                     //model.setSyncedWithServer(getApplicationContext(), true);
                     Log.d(TAG, "onStartJob, onSuccess");
@@ -94,7 +94,7 @@ public class FileUploadFirebaseService extends JobService {
         if (dispatcher.schedule(myJob) == SCHEDULE_RESULT_SUCCESS) {
             Log.d(TAG, "startService, successfully scheduled");
         } else {
-            Log.d(TAG, "startService, failed to scheduled");
+            Log.d(TAG, "startService, failed to schedule");
         }
     }
 }

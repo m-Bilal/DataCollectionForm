@@ -35,7 +35,6 @@ public class TextAnswerFragment extends Fragment {
     private EditText answerEdittext;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
@@ -60,7 +59,6 @@ public class TextAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -69,7 +67,6 @@ public class TextAnswerFragment extends Fragment {
         questionTextview = v.findViewById(R.id.textview_question);
         answerEdittext = v.findViewById(R.id.edittext_answer);
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextview.setText(formQuestionModel.label);
 
         if (!formQuestionModel.type.equalsIgnoreCase(FormQuestionModel.TYPE_PARAGRAPH)) {
@@ -96,12 +93,11 @@ public class TextAnswerFragment extends Fragment {
             alreadyAnswered = true;
             answerEdittext.setText(questionAnswerModel.value);
             Log.d(TAG, "checkIfAlreadyAnswered, true");
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e) {
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             Log.d(TAG, "checkIfAlreadyAnswered, false");
         }
-
         Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
 
     }

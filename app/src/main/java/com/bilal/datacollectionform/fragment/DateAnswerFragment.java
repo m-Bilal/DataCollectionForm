@@ -38,7 +38,6 @@ public class DateAnswerFragment extends Fragment {
     private TextView questionTextView;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private SimpleDateFormat simpleDateFormat;
     private Date date;
     private DatePicker datePicker;
@@ -68,7 +67,6 @@ public class DateAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -77,14 +75,13 @@ public class DateAnswerFragment extends Fragment {
         datePicker = v.findViewById(R.id.datepicker);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
 
         fragmentCallback.setAnswerListInCurrentFragment();
         return v;
     }
 
-    private void initDatePicker(Date date1) {
+    private void initDatePicker(final Date date1) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date1);
         datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
@@ -121,10 +118,11 @@ public class DateAnswerFragment extends Fragment {
             Date date = simpleDateFormat.parse(answer);
             initDatePicker(date);
 
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             initDatePicker(new Date());
+        } catch (Exception e) {
             answer = "";
         }
         Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);

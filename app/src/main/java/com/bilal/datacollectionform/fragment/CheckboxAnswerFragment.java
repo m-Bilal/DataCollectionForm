@@ -41,7 +41,6 @@ public class CheckboxAnswerFragment extends Fragment {
     private TextView textView;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    //private FormAnswerModel formAnswerModel;
     private MyRecyclerViewAdapter adapter;
     private List<String> answerList;
     private List<QuestionAnswerModel> questionAnswerModels;
@@ -68,7 +67,6 @@ public class CheckboxAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -84,7 +82,6 @@ public class CheckboxAnswerFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        //formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
 
         fragmentCallback.setAnswerListInCurrentFragment();
@@ -102,7 +99,7 @@ public class CheckboxAnswerFragment extends Fragment {
             questionAnswerModel = questionAnswerModels.get(position);
             parseAnswer();
             alreadyAnswered = true;
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             answerList = new ArrayList<>();

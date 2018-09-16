@@ -36,7 +36,6 @@ public class StarAnswerFragment extends Fragment {
     private TextView textView;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private List<QuestionAnswerModel> questionAnswerModels;
 
     private boolean alreadyAnswered;
@@ -62,7 +61,6 @@ public class StarAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -72,7 +70,6 @@ public class StarAnswerFragment extends Fragment {
         textView = v.findViewById(R.id.textview_question);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         textView.setText(formQuestionModel.label);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -98,7 +95,7 @@ public class StarAnswerFragment extends Fragment {
             answer = questionAnswerModel.value;
             ratingBar.setRating(Float.parseFloat(answer));
             alreadyAnswered = true;
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException e) {
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             answer = "0";

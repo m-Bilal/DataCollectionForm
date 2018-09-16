@@ -22,6 +22,7 @@ import com.bilal.datacollectionform.model.FormModel;
 import com.bilal.datacollectionform.service.FileUploadService;
 import com.bilal.datacollectionform.service.FormUploadService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UnsyncedListActivity extends AppCompatActivity implements CallbackHelper.FileUploadServiceCallback,
@@ -62,14 +63,18 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
         unsyncedFileTextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startFileUpload();
+                if (unsyncedFileList.size() > 0) {
+                    startFileUpload();
+                }
             }
         });
 
         unsyncedFormTextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startFormUpload();
+                if (unsyncedFormList.size() > 0) {
+                    startFormUpload();
+                }
             }
         });
 
@@ -87,14 +92,17 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
         if (unsyncedFileList.size() > 0) {
             unsyncedFileTextview.setText("Tap to sync " + unsyncedFileList.size() + " files");
         } else {
-            unsyncedFileTextview.setText("No unsynced forms");
+            unsyncedFileTextview.setText("No unsynced files");
         }
     }
 
     void startFileUpload() {
+        FileUploadService.setCallback(this);
         fileUploadDialog = new ProgressDialog(context);
         fileUploadDialog.setTitle("Uploading Files");
         fileUploadDialog.setIndeterminate(false);
+        fileUploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        fileUploadDialog.setMax(unsyncedFileList.size());
         fileUploadDialog.setCanceledOnTouchOutside(false);
         fileUploadDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Move to background", new DialogInterface.OnClickListener() {
             @Override
@@ -103,15 +111,18 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
             }
         });
         fileUploadDialog.show();
-        Intent intent = new Intent(this, FormUploadService.class);
+        Intent intent = new Intent(this, FileUploadService.class);
         startService(intent);
-        FileUploadService.setCallback(this);
+
     }
 
     void startFormUpload() {
+        FormUploadService.setCallback(this);
         formUploadDialog = new ProgressDialog(context);
-        formUploadDialog.setTitle("Uploading Files");
+        formUploadDialog.setTitle("Uploading Forms");
         formUploadDialog.setIndeterminate(false);
+        formUploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        formUploadDialog.setMax(unsyncedFormList.size());
         formUploadDialog.setCanceledOnTouchOutside(false);
         formUploadDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Move to background", new DialogInterface.OnClickListener() {
             @Override
@@ -122,23 +133,23 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
         formUploadDialog.show();
         Intent intent = new Intent(this, FormUploadService.class);
         startService(intent);
-        FormUploadService.setCallback(this);
+
     }
 
     @Override
     public void updateFileUpload(int synced, int failed, int total) {
         String message = synced + " out of " + total + " files uploaded, " + failed + " failed.";
         fileUploadDialog.setMessage(message);
-        float percent = ((float) synced + (float) failed) / (float) total * 100f;
-        fileUploadDialog.setProgress((int) percent);
+        fileUploadDialog.setMax(total);
+        fileUploadDialog.setProgress(synced + failed);
     }
 
     @Override
     public void updateFormUpload(int synced, int failed, int total) {
         String message = synced + " out of " + total + " forms uploaded, " + failed + " failed.";
         formUploadDialog.setMessage(message);
-        float percent = ((float) synced + (float) failed) / (float) total * 100f;
-        formUploadDialog.setProgress((int) percent);
+        formUploadDialog.setMax(total);
+        formUploadDialog.setProgress(synced + failed);
     }
 
     @Override

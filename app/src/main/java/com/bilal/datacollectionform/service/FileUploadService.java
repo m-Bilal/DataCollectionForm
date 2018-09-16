@@ -13,12 +13,13 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.helper.NotificationHelper;
 import com.bilal.datacollectionform.model.FileModel;
 
+import java.util.ArrayList;
+
 import io.realm.RealmResults;
 
 public class FileUploadService extends IntentService {
 
     private Context context;
-    private FileModel fileModel;
     private int totalFiles;
     private int uploaded;
     private int failedToUpload;
@@ -34,12 +35,14 @@ public class FileUploadService extends IntentService {
         context = getApplicationContext();
         uploaded = 0;
         failedToUpload = 0;
-        RealmResults<FileModel> fileModels = FileModel.getAllUnsyncedModels(context);
+        ArrayList<FileModel> fileModels = FileModel.getAllUnsyncedModels(context);
         totalFiles = fileModels.size();
 
-        final Notification notification = NotificationHelper.createFileUploadNotification(context);
-        NotificationHelper.updateFileNotificationProgress(context, notification, uploaded, failedToUpload, totalFiles);
+        Notification notification = NotificationHelper.createFileUploadNotification(context);
+        NotificationHelper.updateFileNotificationProgress(context, uploaded, failedToUpload, totalFiles);
 
+        syncWithServer(0, fileModels);
+        /*
         for (FileModel i : fileModels) {
             fileModel = i;
             i.syncUploadToServer(context, i, new CallbackHelper.Callback() {
@@ -48,7 +51,7 @@ public class FileUploadService extends IntentService {
                     uploaded++;
 
                     FileModel.setSyncedWithServer(context, fileModel, true);
-                    //callback.setSyncedWithServer(fileModel, true);
+
                     if (UnsyncedListActivity.isRunning) {
                         callback.updateFileUpload(uploaded, failedToUpload, totalFiles);
                     }
@@ -79,7 +82,50 @@ public class FileUploadService extends IntentService {
                 }
             });
         }
+        */
         startForeground(NotificationHelper.FILE_UPLOAD_NOTIFICATION_ID, notification);
+    }
+
+    private void syncWithServer(final int position, final ArrayList<FileModel> models) {
+        if (position < models.size()) {
+            FileModel.syncUploadToServer(context, models.get(position), new CallbackHelper.Callback() {
+                @Override
+                public void onSuccess() {
+                    uploaded++;
+                    FileModel.setSyncedWithServer(context, models.get(position), true);
+                    if (UnsyncedListActivity.isRunning) {
+                        callback.updateFileUpload(uploaded, failedToUpload, totalFiles);
+                    }
+                    NotificationHelper.updateFileNotificationProgress(context, uploaded, failedToUpload, totalFiles);
+                    if (uploaded + failedToUpload == totalFiles) {
+                        if (UnsyncedListActivity.isRunning) {
+                            callback.completedFileUpload();
+                        }
+                        stopSelf();
+                    } else {
+                        syncWithServer(position + 1, models);
+                    }
+                }
+
+                @Override
+                public void onFailure() {
+                    failedToUpload++;
+                    FileModel.setSyncedWithServer(context, models.get(position), false);
+                    if (UnsyncedListActivity.isRunning) {
+                        callback.updateFileUpload(uploaded, failedToUpload, totalFiles);
+                    }
+                    NotificationHelper.updateFileNotificationProgress(context, uploaded, failedToUpload, totalFiles);
+                    if (uploaded + failedToUpload == totalFiles) {
+                        if (UnsyncedListActivity.isRunning) {
+                            callback.completedFileUpload();
+                        }
+                        stopSelf();
+                    } else {
+                        syncWithServer(position + 1, models);
+                    }
+                }
+            });
+        }
     }
 
     public static void setCallback(CallbackHelper.FileUploadServiceCallback callbacks) {

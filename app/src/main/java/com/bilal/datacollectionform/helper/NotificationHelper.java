@@ -12,9 +12,9 @@ import com.bilal.datacollectionform.R;
 
 public class NotificationHelper {
 
-    private final static String CHANNEL_ID = "1";
     public final static int FILE_UPLOAD_NOTIFICATION_ID = 1000;
     public final static int FORM_UPLOAD_NOTIFICATION_ID = 1001;
+    private final static String CHANNEL_ID = "1";
 
     public static Notification createFileUploadNotification(Context context) {
 
@@ -46,26 +46,21 @@ public class NotificationHelper {
         return notification;
     }
 
-    public static void updateFileNotificationProgress(Context context, Notification notification,
-                                                      int currentProgress, int failed, int maxProgress) {
+    public static void updateFileNotificationProgress(Context context, int currentProgress,
+                                                      int failed, int maxProgress) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        mBuilder.setContentTitle("File Upload")
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentText(currentProgress + " files out of " + maxProgress + " uploaded, "
+                        + failed + " failed.");
         if ((currentProgress + failed) != maxProgress) {
-            mBuilder.setContentTitle("File Upload")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentText(currentProgress + " files out of " + maxProgress + " uploaded, "
-                    + failed + " failed.")
-                    .setProgress(maxProgress, currentProgress, false);
-            notificationManager.notify(FILE_UPLOAD_NOTIFICATION_ID, notification);
+            mBuilder.setProgress(maxProgress, currentProgress, false);
         } else {
-            mBuilder.setContentTitle("File Upload")
-                    .setContentText("Upload complete")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setProgress(0,0,false);
-            notificationManager.notify(FILE_UPLOAD_NOTIFICATION_ID, notification);
+            mBuilder.setProgress(0, 0, false);
         }
+        notificationManager.notify(FILE_UPLOAD_NOTIFICATION_ID, mBuilder.build());
     }
 
     public static Notification createFormUploadNotification(Context context) {
@@ -101,22 +96,16 @@ public class NotificationHelper {
                                                       int failed, int maxProgress) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        mBuilder.setContentTitle("Form Upload")
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentText(currentProgress + " forms out of " + maxProgress + " uploaded, "
+                        + failed + " failed.");
         if ((currentProgress + failed) != maxProgress) {
-            mBuilder.setContentTitle("Form Upload")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentText(currentProgress + " forms out of " + maxProgress + " uploaded, "
-                            + failed + " failed.")
-                    .setProgress(maxProgress, currentProgress, false);
-            notificationManager.notify(FORM_UPLOAD_NOTIFICATION_ID, mBuilder.build());
+            mBuilder.setProgress(maxProgress, currentProgress, false);
         } else {
-            mBuilder.setContentTitle("Form Upload")
-                    .setContentText(currentProgress + " forms out of " + maxProgress + " uploaded, "
-                            + failed + " failed.")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setProgress(0,0,false);
-            notificationManager.notify(FILE_UPLOAD_NOTIFICATION_ID, mBuilder.build());
+            mBuilder.setProgress(0, 0, false);
         }
+        notificationManager.notify(FORM_UPLOAD_NOTIFICATION_ID, mBuilder.build());
     }
 }

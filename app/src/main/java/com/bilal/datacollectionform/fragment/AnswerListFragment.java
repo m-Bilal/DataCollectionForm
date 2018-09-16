@@ -19,10 +19,15 @@ import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.activity.FormQuestionActivity;
 import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
+import com.bilal.datacollectionform.model.FormModel;
+import com.bilal.datacollectionform.model.PrimaryKeyModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
+import com.bilal.datacollectionform.model.UserModel;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import io.realm.RealmList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,9 +39,14 @@ public class AnswerListFragment extends Fragment {
     private Context context;
 
     private List<QuestionAnswerModel> questionAnswerModels;
+    private RealmList<QuestionAnswerModel> questionAnswerModelRealmList;
+    private FormModel formModel;
+    private FormAnswerModel formAnswerModel;
     private RecyclerView recyclerView;
     MyRecyclerViewAdapter adapter;
     private CallbackHelper.FragmentCallback fragmentCallback;
+
+    private long time;
 
     public AnswerListFragment() {
         // Required empty public constructor
@@ -51,10 +61,13 @@ public class AnswerListFragment extends Fragment {
         context = getActivity();
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
+        questionAnswerModelRealmList =  new RealmList<>();
 
         recyclerView = v.findViewById(R.id.recyclerview);
-        int key = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
+        int formId = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
+        time = getArguments().getLong(FormQuestionActivity.BUNDLE_ARG_TIME);
+        formModel = FormModel.getFromForId(context, formId);
+        //FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
         questionAnswerModels = new LinkedList<>();
         //questionAnswerModels = formAnswerModel.questionAnswerModelRealmList;
         //questionAnswerModels = QuestionAnswerModel.getAllModelsForFormId(context, formAnswerModel);
@@ -73,9 +86,25 @@ public class AnswerListFragment extends Fragment {
         return v;
     }
 
+    private void createFormAnswerModel() {
+        formAnswerModel = FormAnswerModel.createModel(context, UserModel.getUserFromRealm(context), time,
+                formModel, questionAnswerModelRealmList);
+        formAnswerModel.saveJson(context);
+
+    }
+
+    private void allotPrimaryKeysToQuestionAnswerModels() {
+        for(QuestionAnswerModel model : questionAnswerModels) {
+            model.primaryKey = PrimaryKeyModel.getQuestionAnswerPrimaryKey(context);
+            questionAnswerModelRealmList.add(model);
+        }
+    }
+
     public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
         Log.d(TAG, "setAnswerList()");
         this.questionAnswerModels = questionAnswerModels;
+        allotPrimaryKeysToQuestionAnswerModels();
+        createFormAnswerModel();
         adapter.notifyDataSetChanged();
     }
 

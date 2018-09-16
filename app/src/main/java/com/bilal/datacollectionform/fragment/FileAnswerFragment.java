@@ -38,7 +38,6 @@ public class FileAnswerFragment extends Fragment {
     private Button button;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private Uri answerUri;
     private List<QuestionAnswerModel> questionAnswerModels;
 
@@ -66,7 +65,6 @@ public class FileAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -77,7 +75,6 @@ public class FileAnswerFragment extends Fragment {
         selectedFileTextview = v.findViewById(R.id.textview_selected_file);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
 
         button.setOnClickListener(new View.OnClickListener() {

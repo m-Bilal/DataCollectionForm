@@ -26,12 +26,11 @@ import com.bilal.datacollectionform.fragment.StarAnswerFragment;
 import com.bilal.datacollectionform.fragment.TextAnswerFragment;
 import com.bilal.datacollectionform.fragment.TimeAnswerFragment;
 import com.bilal.datacollectionform.helper.CallbackHelper;
-import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
-import com.bilal.datacollectionform.model.UserModel;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,6 +43,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     public final static String BUNDLE_ARG_QUESTION_KEY = "primary_key";
     public final static String BUNDLE_ARG_ANSWER_FORM_KEY = "answer_form_key";
     public final static String BUNDLE_ARG_POSITION = "pos";
+    public final static String BUNDLE_ARG_TIME = "date";
     public final static int INTENT_SELECT_FILE_REQUEST_CODE = 1001;
     public final static int INTENT_SELECT_IMAGE_REQUEST_CODE = 1002;
 
@@ -59,10 +59,10 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     private TextView previousTextview;
     private TextView nextTextview;
     private TextView newEntryTextview;
-    private FormAnswerModel formAnswerModel;
     private Fragment currentFragment;
 
     private int pos;
+    private long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +84,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         int formId = getIntent().getIntExtra(INTENT_ARG_FORM_ID, 0);
+        time = Calendar.getInstance().getTimeInMillis();
         formModel = FormModel.getFromForId(context, formId);
-        formAnswerModel = FormAnswerModel.createModel(context, UserModel.getUserFromRealm(context),
-                formModel);
         answerList = new LinkedList<>();
 
         toolbarTitleTextview.setText(formModel.formName);
@@ -135,7 +134,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new TextAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -143,7 +141,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new DropdownAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -151,7 +148,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new DateAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -159,7 +155,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new StarAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -167,7 +162,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new FileAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -175,7 +169,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new CheckboxAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -183,7 +176,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new RadioButtonAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -191,7 +183,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new TimeAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -199,7 +190,6 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     Fragment fragment = new ImageAnswerFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt(BUNDLE_ARG_QUESTION_KEY, i.primaryKey);
-                    bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formAnswerModel.primaryKey);
                     bundle.putInt(BUNDLE_ARG_POSITION, j++);
                     fragment.setArguments(bundle);
                     fragmentList.add(fragment);
@@ -284,7 +274,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
             newEntryTextview.setVisibility(View.VISIBLE);
             Fragment fragment = new AnswerListFragment();
             Bundle bundle = new Bundle();
-            bundle.putInt(BUNDLE_ARG_QUESTION_KEY, formAnswerModel.primaryKey);
+            bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formModel.formId);
+            bundle.putLong(BUNDLE_ARG_TIME, time);
             fragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
         }
@@ -353,7 +344,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     }
 
     private void deleteModelAndGoBack() {
-        FormAnswerModel.deleteModel(context, formAnswerModel);
+        //FormAnswerModel.deleteModel(context, formAnswerModel);
         super.onBackPressed();
     }
 

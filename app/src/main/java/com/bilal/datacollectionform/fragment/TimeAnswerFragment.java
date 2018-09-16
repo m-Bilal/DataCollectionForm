@@ -40,7 +40,6 @@ public class TimeAnswerFragment extends Fragment {
     private TimePicker timePicker;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private SimpleDateFormat simpleDateFormat;
     private Date date;
     private List<QuestionAnswerModel> questionAnswerModels;
@@ -69,7 +68,6 @@ public class TimeAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -78,7 +76,6 @@ public class TimeAnswerFragment extends Fragment {
         timePicker = v.findViewById(R.id.timepicker);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
 
         fragmentCallback.setAnswerListInCurrentFragment();
@@ -86,16 +83,6 @@ public class TimeAnswerFragment extends Fragment {
     }
 
     private void initTimePicker(Date date1) {
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendar.set(Calendar.MINUTE, minute);
-                date = calendar.getTime();
-                selectTime();
-            }
-        });
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date1);
         if (Build.VERSION.SDK_INT >= 23 ) {
@@ -106,6 +93,16 @@ public class TimeAnswerFragment extends Fragment {
             timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
         }
 
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                date = calendar.getTime();
+                selectTime();
+            }
+        });
     }
 
     private void selectTime() {
@@ -128,12 +125,14 @@ public class TimeAnswerFragment extends Fragment {
             Date date1 = simpleDateFormat.parse(answer);
             initTimePicker(date1);
 
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             initTimePicker(new Date());
             simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
             answer = simpleDateFormat.format(new Date());
+        } catch (Exception e) {
+            answer = "";
         }
 
         Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);

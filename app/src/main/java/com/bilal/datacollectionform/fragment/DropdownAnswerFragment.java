@@ -35,7 +35,6 @@ public class DropdownAnswerFragment extends Fragment {
     private Spinner spinner;
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
-    private FormAnswerModel formAnswerModel;
     private String[] optionsArray;
     private List<QuestionAnswerModel> questionAnswerModels;
 
@@ -63,7 +62,6 @@ public class DropdownAnswerFragment extends Fragment {
         fragmentCallback = (CallbackHelper.FragmentCallback) getActivity();
         fragmentCallback.setCurrentFragment(this);
         int questionKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_QUESTION_KEY);
-        int formAnswerKey = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         position = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_POSITION);
 
         Log.d(TAG, "onCreateView, position " + position);
@@ -72,7 +70,6 @@ public class DropdownAnswerFragment extends Fragment {
         spinner = v.findViewById(R.id.spinner);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
-        formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, formAnswerKey);
         questionTextView.setText(formQuestionModel.label);
         createOptionArrayForSpinner();
 
@@ -117,7 +114,7 @@ public class DropdownAnswerFragment extends Fragment {
             alreadyAnswered = true;
             answer = questionAnswerModel.value;
 
-        } catch (Exception e){
+        } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             answer = "";
