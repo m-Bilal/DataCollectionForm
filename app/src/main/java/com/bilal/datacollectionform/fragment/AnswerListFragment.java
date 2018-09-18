@@ -46,6 +46,8 @@ public class AnswerListFragment extends Fragment {
     MyRecyclerViewAdapter adapter;
     private CallbackHelper.FragmentCallback fragmentCallback;
 
+    private double longitude;
+    private double latitude;
     private long time;
 
     public AnswerListFragment() {
@@ -66,6 +68,8 @@ public class AnswerListFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview);
         int formId = getArguments().getInt(FormQuestionActivity.BUNDLE_ARG_ANSWER_FORM_KEY);
         time = getArguments().getLong(FormQuestionActivity.BUNDLE_ARG_TIME);
+        longitude = getArguments().getDouble(FormQuestionActivity.BUNDLE_ARG_LONGITUDE);
+        latitude = getArguments().getDouble(FormQuestionActivity.BUNDLE_ARG_LATITUDE);
         formModel = FormModel.getFromForId(context, formId);
         //FormAnswerModel formAnswerModel = FormAnswerModel.getModelForPrimaryKey(context, key);
         questionAnswerModels = new LinkedList<>();
@@ -88,7 +92,7 @@ public class AnswerListFragment extends Fragment {
 
     private void createFormAnswerModel() {
         formAnswerModel = FormAnswerModel.createModel(context, UserModel.getUserFromRealm(context), time,
-                formModel, questionAnswerModelRealmList);
+                latitude, longitude, formModel, questionAnswerModelRealmList);
         formAnswerModel.saveJson(context);
 
     }

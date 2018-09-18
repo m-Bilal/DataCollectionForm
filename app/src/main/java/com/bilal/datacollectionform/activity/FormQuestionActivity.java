@@ -3,8 +3,11 @@ package com.bilal.datacollectionform.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +32,18 @@ import com.bilal.datacollectionform.helper.CallbackHelper;
 import com.bilal.datacollectionform.model.FormModel;
 import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -44,8 +59,11 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     public final static String BUNDLE_ARG_ANSWER_FORM_KEY = "answer_form_key";
     public final static String BUNDLE_ARG_POSITION = "pos";
     public final static String BUNDLE_ARG_TIME = "date";
+    public final static String BUNDLE_ARG_LATITUDE = "latitude";
+    public final static String BUNDLE_ARG_LONGITUDE = "longitude";
     public final static int INTENT_SELECT_FILE_REQUEST_CODE = 1001;
     public final static int INTENT_SELECT_IMAGE_REQUEST_CODE = 1002;
+    public final static int REQUEST_CHECK_SETTINGS = 1003;
 
     private boolean deleteModel;
 
@@ -60,6 +78,13 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     private TextView nextTextview;
     private TextView newEntryTextview;
     private Fragment currentFragment;
+    private LocationCallback locationCallback;
+    private LocationRequest mLocationRequest;
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
+
+    private double longitude;
+    private double latitude;
 
     private int pos;
     private long time;
@@ -84,14 +109,13 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         int formId = getIntent().getIntExtra(INTENT_ARG_FORM_ID, 0);
+        latitude = -1;
+        longitude = -1;
         time = Calendar.getInstance().getTimeInMillis();
         formModel = FormModel.getFromForId(context, formId);
         answerList = new LinkedList<>();
 
         toolbarTitleTextview.setText(formModel.formName);
-
-        createQuestionFragments();
-        attachFirstFragment();
 
         previousTextview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +137,81 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                 startFormListActivity();
             }
         });
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Location tracking
+        try {
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+
+                    if (location != null) {
+                        Log.d(TAG, "onCreateView, fusedLocationProciderClient, latitude" + location.getLatitude());
+                        Log.d(TAG, "onCreateView, fusedLocationProciderClient, longitude" + location.getLongitude());
+                    } else {
+                        Log.d(TAG, "onCreateView, fusedLocationProciderClient, location null");
+                    }
+                }
+            });
+
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(60 * 1000);
+            mLocationRequest.setFastestInterval(10 * 1000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(mLocationRequest);
+            SettingsClient client = LocationServices.getSettingsClient(this);
+            Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+            task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+                @Override
+                public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                    // All location settings are satisfied. The client can initialize
+                    // location requests here.
+                    // ...
+                }
+            });
+
+            task.addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof ResolvableApiException) {
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            ResolvableApiException resolvable = (ResolvableApiException) e;
+                            resolvable.startResolutionForResult(FormQuestionActivity.this,
+                                    REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sendEx) {
+                            // Ignore the error.
+                        }
+                    }
+                }
+            });
+
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null) {
+                        return;
+                    }
+                    for (Location location : locationResult.getLocations()) {
+                        Log.d(TAG, "onCreateView, locationCallback, latitude" + location.getLatitude());
+                        Log.d(TAG, "onCreateView, locationCallback, longitude" + location.getLongitude());
+                    }
+                }
+            };
+
+        } catch (SecurityException e) {
+            Log.e(TAG, "fusedLocationProciderClient, Security Exception " + e.toString());
+            e.printStackTrace();
+        }
+        createQuestionFragments();
+        attachFirstFragment();
     }
 
     private void startFormListActivity() {
@@ -276,6 +375,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
             Bundle bundle = new Bundle();
             bundle.putInt(BUNDLE_ARG_ANSWER_FORM_KEY, formModel.formId);
             bundle.putLong(BUNDLE_ARG_TIME, time);
+            bundle.putDouble(BUNDLE_ARG_LONGITUDE, longitude);
+            bundle.putDouble(BUNDLE_ARG_LATITUDE, latitude);
             fragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
         }
@@ -355,5 +456,35 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void startLocationUpdates() {
+        try {
+            fusedLocationProviderClient.requestLocationUpdates(mLocationRequest,
+                    locationCallback,
+                    null /* Looper */);
+        } catch (SecurityException e) {
+
+        }
+    }
+
+    private void stopLocationUpdates() {
+        try {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        } catch (SecurityException e) {
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startLocationUpdates();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
     }
 }

@@ -42,6 +42,8 @@ public class FormAnswerModel extends RealmObject {
     public boolean syncedWithServer;
     public RealmList<QuestionAnswerModel> questionAnswerModelRealmList;
     public String json;
+    public double latitude;
+    public double longitude;
 
     public FormAnswerModel() {
 
@@ -55,6 +57,8 @@ public class FormAnswerModel extends RealmObject {
         this.syncedWithServer = model.syncedWithServer;
         this.questionAnswerModelRealmList = model.questionAnswerModelRealmList;
         this.json = model.json;
+        this.latitude = model.latitude;
+        this.longitude = model.longitude;
     }
 
     public void saveJson(Context context) {
@@ -64,6 +68,16 @@ public class FormAnswerModel extends RealmObject {
             formInfo.put("formid", this.formId);
             formInfo.put("userid", this.userId);
             formInfo.put("capturedate", this.captureDate);
+            if (this.longitude == -1) {
+                formInfo.put("long" , "Not available");
+            } else {
+                formInfo.put("long", this.longitude);
+            }
+            if (this.latitude == -1) {
+                formInfo.put("lat", "Not available");
+            } else {
+                formInfo.put("lat", this.latitude);
+            }
             jsonObject.put("0", formInfo);
             int pos = 1;
             for (QuestionAnswerModel i : questionAnswerModelRealmList) {
@@ -191,7 +205,8 @@ public class FormAnswerModel extends RealmObject {
         return new FormAnswerModel(formAnswerModel);
     }
 
-    public static FormAnswerModel createModel(Context context, UserModel userModel, long time, FormModel formModel,
+    public static FormAnswerModel createModel(Context context, UserModel userModel, long time,
+                                              double latitude, double longitude, FormModel formModel,
                                               RealmList<QuestionAnswerModel> questionAnswerModelRealmList) {
         int key = PrimaryKeyModel.getFormAnswerPrimaryKey(context);
         FormAnswerModel formAnswerModel = new FormAnswerModel();
@@ -200,6 +215,8 @@ public class FormAnswerModel extends RealmObject {
         formAnswerModel.userId = userModel.userId;
         formAnswerModel.captureDate = time;
         formAnswerModel.syncedWithServer = false;
+        formAnswerModel.latitude = latitude;
+        formAnswerModel.longitude = longitude;
         formAnswerModel.questionAnswerModelRealmList = questionAnswerModelRealmList;
         saveToRealm(context, formAnswerModel);
         return new FormAnswerModel(formAnswerModel);

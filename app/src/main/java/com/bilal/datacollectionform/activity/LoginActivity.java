@@ -63,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onAuthenticationFailed() {
+                progressDialog.dismiss();
                 Toast.makeText(context, "Incorrect username or password", Toast.LENGTH_SHORT).show();
             }
 
@@ -77,5 +78,6 @@ public class LoginActivity extends AppCompatActivity {
     private void startMainActivity() {
         Intent intent = new Intent(context, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }
