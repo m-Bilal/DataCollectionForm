@@ -44,9 +44,11 @@ public class CheckboxAnswerFragment extends Fragment {
     private MyRecyclerViewAdapter adapter;
     private List<String> answerList;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
-    private boolean alreadyAnswered;
+    private boolean alreadyAnswered; // To know if this question has already been answered previously
     private int position;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -73,6 +75,8 @@ public class CheckboxAnswerFragment extends Fragment {
 
         recyclerView = v.findViewById(R.id.recyclerview);
         textView = v.findViewById(R.id.textview_question);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         answerList = new ArrayList<>();
         adapter = new MyRecyclerViewAdapter();
@@ -82,10 +86,30 @@ public class CheckboxAnswerFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
         textView.setText(formQuestionModel.label);
 
         fragmentCallback.setAnswerListInCurrentFragment();
         return v;
+    }
+
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answerList.size() == 0) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {
@@ -111,15 +135,19 @@ public class CheckboxAnswerFragment extends Fragment {
     }
 
     private void parseAnswer() {
-        answerList = new ArrayList<>();
-        String arr[] = questionAnswerModel.value.split(",");
-        Log.d(TAG, "parseAnswer: value: " + questionAnswerModel.value);
-        for (String i : arr) {
-            answerList.add(i);
-        }
-        //answerList = Arrays.asList(arr);
-        for (String i : answerList) {
-            Log.d(TAG, "parseAnswer: " + i);
+        if (questionAnswerModel.value.trim().equals("")) {
+            answerList = new ArrayList<>();
+        } else {
+            answerList = new ArrayList<>();
+            String arr[] = questionAnswerModel.value.split(",");
+            Log.d(TAG, "parseAnswer: value: " + questionAnswerModel.value);
+            for (String i : arr) {
+                answerList.add(i);
+            }
+            //answerList = Arrays.asList(arr);
+            for (String i : answerList) {
+                Log.d(TAG, "parseAnswer: " + i);
+            }
         }
     }
 

@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.bilal.datacollectionform.R;
+import com.bilal.datacollectionform.model.FileModel;
+import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.PrimaryKeyModel;
 import com.bilal.datacollectionform.model.UserModel;
 
@@ -23,6 +25,7 @@ public class SplashActivity extends AppCompatActivity {
 
         initializeRealm();
         initilizePrimaryKeys();
+        deleteSyncedModels();
 
         if (UserModel.getUserFromRealm(context) != null) {
             startMainActivity();
@@ -47,6 +50,11 @@ public class SplashActivity extends AppCompatActivity {
         if (PrimaryKeyModel.getPrimaryKeyModel(context) == null) {
             PrimaryKeyModel.createPrimaryKeyModel(context);
         }
+    }
+
+    private void deleteSyncedModels() {
+        FileModel.deleteAllSyncedModelsFromRealm(context);
+        FormAnswerModel.deleteAllSyncedModelsFromRealm(context);
     }
 
     private void startMainActivity() {

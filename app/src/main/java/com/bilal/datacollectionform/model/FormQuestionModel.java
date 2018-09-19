@@ -213,6 +213,18 @@ public class FormQuestionModel extends RealmObject{
         realm.close();
     }
 
+    public static RealmList<FormQuestionModel> getAllForForm(Context context, FormModel formModel) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults<FormQuestionModel> realmResults = realm.where(FormQuestionModel.class)
+                .equalTo("formId", formModel.formId).findAll();
+        RealmList<FormQuestionModel> list = new RealmList<>();
+        list.addAll(realmResults.subList(0, realmResults.size()));
+        realm.close();
+        return list;
+    }
+
     public static void deleteAllForForm(Context context, FormModel formModel) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();

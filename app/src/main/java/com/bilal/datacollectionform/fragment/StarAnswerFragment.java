@@ -37,10 +37,12 @@ public class StarAnswerFragment extends Fragment {
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -68,9 +70,16 @@ public class StarAnswerFragment extends Fragment {
 
         ratingBar = v.findViewById(R.id.ratingbar);
         textView = v.findViewById(R.id.textview_question);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         textView.setText(formQuestionModel.label);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -81,6 +90,21 @@ public class StarAnswerFragment extends Fragment {
 
         fragmentCallback.setAnswerListInCurrentFragment();
         return v;
+    }
+
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answer.trim().equals("0")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     public void setAnswerList(LinkedList<QuestionAnswerModel> questionAnswerModels) {

@@ -3,6 +3,7 @@ package com.bilal.datacollectionform.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,8 +19,10 @@ import android.widget.Toast;
 import com.bilal.datacollectionform.R;
 import com.bilal.datacollectionform.activity.FormQuestionActivity;
 import com.bilal.datacollectionform.helper.CallbackHelper;
+import com.bilal.datacollectionform.helper.Helper;
 import com.bilal.datacollectionform.model.FormAnswerModel;
 import com.bilal.datacollectionform.model.FormModel;
+import com.bilal.datacollectionform.model.FormQuestionModel;
 import com.bilal.datacollectionform.model.PrimaryKeyModel;
 import com.bilal.datacollectionform.model.QuestionAnswerModel;
 import com.bilal.datacollectionform.model.UserModel;
@@ -141,7 +144,13 @@ public class AnswerListFragment extends Fragment {
         @Override
         public void onBindViewHolder(final MyViewHolder holder, int position) {
             holder.questionTextview.setText(questionAnswerModels.get(position).label);
-            holder.answerTextview.setText(questionAnswerModels.get(position).value);
+            if (questionAnswerModels.get(position).type.equals(FormQuestionModel.TYPE_FILE_UPLOAD) ||
+                    questionAnswerModels.get(position).type.equals(FormQuestionModel.TYPE_IMAGE)) {
+                holder.answerTextview.setText(Helper.getFileName(context,
+                        Uri.parse(questionAnswerModels.get(position).value)));
+            } else {
+                holder.answerTextview.setText(questionAnswerModels.get(position).value);
+            }
         }
 
         @Override

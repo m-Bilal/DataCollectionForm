@@ -127,7 +127,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
         nextTextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                attachNextFragment();
+                checkAnswerRequirementsAndProceed();
             }
         });
 
@@ -156,8 +156,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
             });
 
             mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(60 * 1000);
-            mLocationRequest.setFastestInterval(10 * 1000);
+            mLocationRequest.setInterval(10 * 1000);
+            mLocationRequest.setFastestInterval(5 * 1000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -215,7 +215,7 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     }
 
     private void startFormListActivity() {
-        Intent intent = new Intent(context, FormListActivity.class);
+        Intent intent = new Intent(context, ExistingFormListActivity.class);
         startActivity(intent);
         finish();
     }
@@ -351,6 +351,32 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
     private void attachFirstFragment() {
         frameLayout.removeAllViews();
         getSupportFragmentManager().beginTransaction().add(R.id.frame_layout, fragmentList.get(pos)).commit();
+    }
+
+    private void checkAnswerRequirementsAndProceed() {
+        boolean conditionSatisfied = false;
+        if (currentFragment instanceof CheckboxAnswerFragment) {
+            conditionSatisfied = ((CheckboxAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof DateAnswerFragment) {
+            conditionSatisfied = ((DateAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof DropdownAnswerFragment) {
+            conditionSatisfied = ((DropdownAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof FileAnswerFragment) {
+            conditionSatisfied = ((FileAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof ImageAnswerFragment) {
+            conditionSatisfied = ((ImageAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof RadioButtonAnswerFragment) {
+            conditionSatisfied = ((RadioButtonAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof StarAnswerFragment) {
+            conditionSatisfied = ((StarAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof TextAnswerFragment) {
+            conditionSatisfied = ((TextAnswerFragment) currentFragment).requirementsSatisfied();
+        } else if (currentFragment instanceof TimeAnswerFragment) {
+            conditionSatisfied = ((TimeAnswerFragment) currentFragment).requirementsSatisfied();
+        }
+        if (conditionSatisfied) {
+            attachNextFragment();
+        }
     }
 
     private void attachNextFragment() {

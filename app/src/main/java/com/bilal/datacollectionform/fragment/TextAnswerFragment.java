@@ -36,9 +36,11 @@ public class TextAnswerFragment extends Fragment {
     private FormQuestionModel formQuestionModel;
     private QuestionAnswerModel questionAnswerModel;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -66,8 +68,16 @@ public class TextAnswerFragment extends Fragment {
 
         questionTextview = v.findViewById(R.id.textview_question);
         answerEdittext = v.findViewById(R.id.edittext_answer);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
+
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         questionTextview.setText(formQuestionModel.label);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
 
         if (!formQuestionModel.type.equalsIgnoreCase(FormQuestionModel.TYPE_PARAGRAPH)) {
             answerEdittext.setMaxLines(1);
@@ -108,6 +118,45 @@ public class TextAnswerFragment extends Fragment {
 
         inputManager.hideSoftInputFromWindow(view.getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    public boolean requirementsSatisfied() {
+        String answer = answerEdittext.getText().toString();
+
+        if (required) {
+            if (answer.trim().equals("")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                if (formQuestionModel.type.equals(FormQuestionModel.TYPE_EMAIL)) {
+                    if (emailValid()) {
+                        errorTextview.setVisibility(View.GONE);
+                        return true;
+                    } else {
+                        errorTextview.setVisibility(View.VISIBLE);
+                        errorTextview.setText("Please enter a valid email");
+                        return false;
+                    }
+                } else {
+                    errorTextview.setVisibility(View.GONE);
+                    return true;
+                }
+            }
+        } else {
+            if (!answer.trim().equals("") && formQuestionModel.type.equals(FormQuestionModel.TYPE_EMAIL)) {
+                if (emailValid()) {
+                    errorTextview.setVisibility(View.GONE);
+                    return true;
+                } else {
+                    errorTextview.setVisibility(View.VISIBLE);
+                    errorTextview.setText("Please enter a valid email");
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
     }
 
     public void saveAnswer() {

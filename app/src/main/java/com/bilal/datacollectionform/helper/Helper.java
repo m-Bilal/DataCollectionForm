@@ -8,6 +8,8 @@ import android.provider.OpenableColumns;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.realm.Realm;
+
 public class Helper {
     public static String getFileName(Context context, Uri uri) {
         String result = null;
@@ -36,5 +38,14 @@ public class Helper {
                 Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(email);
         return matcher.find();
+    }
+
+    public static void deleteAllAndResetRealm(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.deleteAll();
+        realm.commitTransaction();
+        realm.close();
     }
 }

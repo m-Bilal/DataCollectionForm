@@ -43,10 +43,12 @@ public class TimeAnswerFragment extends Fragment {
     private SimpleDateFormat simpleDateFormat;
     private Date date;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -74,9 +76,16 @@ public class TimeAnswerFragment extends Fragment {
 
         questionTextView = v.findViewById(R.id.textview_question);
         timePicker = v.findViewById(R.id.timepicker);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         questionTextView.setText(formQuestionModel.label);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
 
         fragmentCallback.setAnswerListInCurrentFragment();
         return v;
@@ -105,6 +114,21 @@ public class TimeAnswerFragment extends Fragment {
         });
     }
 
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answer.trim().equals("")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+
     private void selectTime() {
         simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
         answer = simpleDateFormat.format(date);
@@ -129,6 +153,7 @@ public class TimeAnswerFragment extends Fragment {
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
             initTimePicker(new Date());
+            answer = "";
             simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
             answer = simpleDateFormat.format(new Date());
         } catch (Exception e) {

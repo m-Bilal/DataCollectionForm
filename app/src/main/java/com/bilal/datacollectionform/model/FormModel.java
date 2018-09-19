@@ -37,6 +37,7 @@ public class FormModel extends RealmObject {
     public String formName;
     public RealmList<FormQuestionModel> formQuestionModelRealmList;
     public boolean syncedWithServer;
+    public boolean previouslyOpened;
 
     @Ignore
     public List<FormQuestionModel> formQuestionModelList;
@@ -54,6 +55,7 @@ public class FormModel extends RealmObject {
             formQuestionModelList.add(new FormQuestionModel(i));
         }
         this.syncedWithServer = formModel.syncedWithServer;
+        this.previouslyOpened = formModel.previouslyOpened;
     }
 
     public static void syncAllForms(final Context context, final UserModel userModel, final CallbackHelper.Callback callback) {
@@ -69,7 +71,13 @@ public class FormModel extends RealmObject {
                                 FormModel formModel = new FormModel();
                                 formModel.formId = jsonArray.getJSONObject(i).getInt("formid");
                                 formModel.formName = jsonArray.getJSONObject(i).getString("formname");
-                                saveFromToRealm(context, formModel);
+                                if (alreadyOpened(context, formModel.formId)) {
+                                    formModel.previouslyOpened = true;
+                                } else {
+                                    formModel.previouslyOpened = false;
+                                    saveFromToRealm(context, formModel);
+                                }
+
                             }
                             callback.onSuccess();
                         } catch (Exception e) {
@@ -100,6 +108,16 @@ public class FormModel extends RealmObject {
         queue.add(postRequest);
     }
 
+    public void setOpened(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        this.previouslyOpened = true;
+        realm.copyToRealmOrUpdate(this);
+        realm.commitTransaction();
+        realm.close();
+    }
+
     public static void saveFromToRealm(Context context, FormModel formModel) {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
@@ -113,6 +131,24 @@ public class FormModel extends RealmObject {
         Realm.init(context);
         Realm realm = Realm.getDefaultInstance();
         RealmResults<FormModel> formModels = realm.where(FormModel.class).findAll();
+        return formModels;
+    }
+
+    public static RealmResults<FormModel> getAllUnopenedFromRealm(Context context) {
+        // For new forms
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormModel> formModels = realm.where(FormModel.class)
+                .equalTo("previouslyOpened", false).findAll();
+        return formModels;
+    }
+
+    public static RealmResults<FormModel> getAllOpenedFromRealm(Context context) {
+        // For existing forms
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormModel> formModels = realm.where(FormModel.class)
+                .equalTo("previouslyOpened", true).findAll();
         return formModels;
     }
 
@@ -134,5 +170,38 @@ public class FormModel extends RealmObject {
         Realm realm = Realm.getDefaultInstance();
         FormModel model = realm.where(FormModel.class).equalTo("formId", id).findFirst();
         return new FormModel(model);
+    }
+
+    private static boolean alreadyOpened(Context context, int formId) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormQuestionModel> realmResults = realm.where(FormQuestionModel.class)
+                .equalTo("formId", formId).findAll();
+        if (realmResults.size() > 0) {
+            realm.close();
+            return true;
+        } else {
+            realm.close();
+            return false;
+        }
+    }
+
+    public static void checkOpenedFroms(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FormModel> realmResults = realm.where(FormModel.class)
+                .equalTo("previouslyOpened", true).findAll();
+        for (FormModel i : realmResults) {
+
+        }
+    }
+
+    public static String getName(Context context, int formId) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        FormModel model = realm.where(FormModel.class).equalTo("formId", formId).findFirst();
+        String name = model.formName;
+        realm.close();
+        return name;
     }
 }

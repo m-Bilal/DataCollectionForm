@@ -37,10 +37,12 @@ public class DropdownAnswerFragment extends Fragment {
     private QuestionAnswerModel questionAnswerModel;
     private String[] optionsArray;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -68,9 +70,16 @@ public class DropdownAnswerFragment extends Fragment {
 
         questionTextView = v.findViewById(R.id.textview_question);
         spinner = v.findViewById(R.id.spinner);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         questionTextView.setText(formQuestionModel.label);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
         createOptionArrayForSpinner();
 
 
@@ -99,6 +108,21 @@ public class DropdownAnswerFragment extends Fragment {
         optionsArray = new String[formQuestionModel.optionList.size()];
         for(int i = 0; i < formQuestionModel.optionList.size(); i++) {
             optionsArray[i] = formQuestionModel.optionList.get(i).value;
+        }
+    }
+
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answer.trim().equals("")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
         }
     }
 

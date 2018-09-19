@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="24dp"
     tools:context=".fragment.DropdownAnswerFragment">
 
@@ -11,56 +11,69 @@
         android:id="@+id/textview_question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:background="@color/colorYellow"
         android:layout_alignParentTop="true"
+        android:background="@color/colorYellow"
+        android:padding="16dp"
+        android:text="Question"
         android:textColor="#000"
-        android:text="Question" />
+        android:textSize="16sp" />
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardElevation="4dp"
         android:layout_below="@id/textview_question"
         android:layout_centerHorizontal="true"
+        android:padding="2dp"
 
-        android:padding="2dp">
+        app:cardElevation="4dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-
-            android:layout_weight=".28"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:background="@drawable/spinnerbg"
             android:orientation="horizontal">
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center"
-        android:background="@android:color/transparent"
-        android:gravity="center"
-        android:layout_marginLeft="5dp"
-        android:spinnerMode="dropdown"
+            <TextView
+                android:id="@+id/textview_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginBottom="24dp"
+                android:text="Error"
+                android:textColor="@color/colorRed"
+                android:textSize="16sp" />
 
-         />
+            <FrameLayout
+                android:layout_below="@id/textview_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinnerbg">
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:src="@drawable/drop" />
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_below="@id/textview_error"
+                    android:gravity="center_horizontal"
+                    android:layout_gravity="right"
+                    android:src="@drawable/drop" />
 
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_below="@id/textview_error"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+            </FrameLayout>
         </RelativeLayout>
-
     </android.support.v7.widget.CardView>
-
 </RelativeLayout>

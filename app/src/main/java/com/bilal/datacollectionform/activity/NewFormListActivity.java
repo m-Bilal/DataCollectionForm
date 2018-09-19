@@ -1,11 +1,10 @@
 package com.bilal.datacollectionform.activity;
 
-import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +26,8 @@ import com.bilal.datacollectionform.model.UserModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormListActivity extends AppCompatActivity {
+public class NewFormListActivity extends AppCompatActivity {
+
 
     private Context context;
 
@@ -44,11 +44,12 @@ public class FormListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_from_list);
+        setContentView(R.layout.activity_new_form_list);
 
         context = this;
 
         progressDialog = new ProgressDialog(context);
+        progressDialog.setCanceledOnTouchOutside(false);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -73,7 +74,7 @@ public class FormListActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 progressDialog.dismiss();
-                formModelList = FormModel.getAllFromRealm(context);
+                formModelList = FormModel.getAllUnopenedFromRealm(context);
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -85,25 +86,6 @@ public class FormListActivity extends AppCompatActivity {
                 } else {
                     formModelList = FormModel.getAllFromRealm(context);
                     mAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    private void syncForm(FormModel formModel1) {
-        final FormModel formModel = new FormModel(formModel1);
-        FormQuestionModel.syncForm(context, formModel, new CallbackHelper.Callback() {
-            @Override
-            public void onSuccess() {
-                startFormQuestionActivity(formModel.formId);
-            }
-
-            @Override
-            public void onFailure() {
-                if (FormModel.getFromForId(context, formModel.formId) != null) {
-                    startFormQuestionActivity(formModel.formId);
-                } else {
-                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -139,8 +121,31 @@ public class FormListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+    private void syncForm(final FormModel formModel1) {
+        progressDialog.setMessage("Loading");
+        progressDialog.show();
+        final FormModel formModel = new FormModel(formModel1);
+        FormQuestionModel.syncForm(context, formModel, new CallbackHelper.Callback() {
+            @Override
+            public void onSuccess() {
+                progressDialog.dismiss();
+                formModel1.setOpened(context);
+                startFormQuestionActivity(formModel.formId);
+            }
 
+            @Override
+            public void onFailure() {
+                progressDialog.dismiss();
+                if (FormModel.getFromForId(context, formModel.formId) != null) {
+                    startFormQuestionActivity(formModel.formId);
+                } else {
+                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

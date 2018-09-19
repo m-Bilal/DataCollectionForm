@@ -39,10 +39,12 @@ public class RadioButtonAnswerFragment extends Fragment {
     private QuestionAnswerModel questionAnswerModel;
     private MyRecyclerViewAdapter adapter;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -70,6 +72,8 @@ public class RadioButtonAnswerFragment extends Fragment {
 
         recyclerView = v.findViewById(R.id.recyclerview);
         textView = v.findViewById(R.id.textview_question);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         adapter = new MyRecyclerViewAdapter();
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
@@ -79,6 +83,11 @@ public class RadioButtonAnswerFragment extends Fragment {
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
         textView.setText(formQuestionModel.label);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
 
         fragmentCallback.setAnswerListInCurrentFragment();
         return v;
@@ -96,6 +105,21 @@ public class RadioButtonAnswerFragment extends Fragment {
         } finally {
             Log.d(TAG, "checkIfAlreadyAnswered() " + alreadyAnswered);
             adapter.notifyDataSetChanged();
+        }
+    }
+
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answer.trim().equals("")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
         }
     }
 

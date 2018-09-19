@@ -35,6 +35,7 @@
         android:gravity="center"
         android:background="@color/myBlue"
         android:textColor="#FFF"
+        android:textStyle="bold"
         android:text="Unsynced Forms"/>
 
     <TextView

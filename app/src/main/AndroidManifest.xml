@@ -17,7 +17,7 @@
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity
-            android:name=".activity.FormListActivity"
+            android:name=".activity.ExistingFormListActivity"
             android:parentActivityName=".activity.MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -43,13 +43,13 @@
         </activity>
         <activity
             android:name=".activity.FormQuestionActivity"
-            android:parentActivityName=".activity.FormListActivity"
+            android:parentActivityName=".activity.ExistingFormListActivity"
             android:windowSoftInputMode="adjustPan|adjustResize">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.FormListActivity" />
+                android:value=".activity.ExistingFormListActivity" />
         </activity>
 
         <service
@@ -60,16 +60,18 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".activity.UnsyncedListActivity"
+        <activity
+            android:name=".activity.UnsyncedListActivity"
             android:parentActivityName=".activity.MainActivity" />
 
         <service
             android:name=".service.FileUploadService"
-            android:exported="false"/>
-
+            android:exported="false" />
         <service
             android:name=".service.FormUploadService"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <activity android:name=".activity.NewFormListActivity"></activity>
     </application>
 
 </manifest>

@@ -1,17 +1,18 @@
 package com.bilal.datacollectionform.activity;
 
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bilal.datacollectionform.R;
@@ -22,7 +23,8 @@ import com.bilal.datacollectionform.model.FormModel;
 import com.bilal.datacollectionform.service.FileUploadService;
 import com.bilal.datacollectionform.service.FormUploadService;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class UnsyncedListActivity extends AppCompatActivity implements CallbackHelper.FileUploadServiceCallback,
@@ -40,6 +42,9 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
     private List<FileModel> unsyncedFileList;
     private List<FormAnswerModel> unsyncedFormList;
 
+    private MyRecyclerViewAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
     private ProgressDialog fileUploadDialog;
     private ProgressDialog formUploadDialog;
 
@@ -53,6 +58,9 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
         unsyncedFileTextview = findViewById(R.id.textview_unsynced_files);
         unsyncedFormTextview = findViewById(R.id.textview_unsynced_forms);
         recyclerView = findViewById(R.id.recyclerview);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(mLayoutManager);
         toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
@@ -84,6 +92,8 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
     private void updateViews() {
         unsyncedFileList = FileModel.getAllUnsyncedModels(context);
         unsyncedFormList = FormAnswerModel.getAllUnsyncedModels(context);
+        mAdapter = new MyRecyclerViewAdapter();
+        recyclerView.setAdapter(mAdapter);
         if (unsyncedFormList.size() > 0) {
             unsyncedFormTextview.setText("Tap to sync " + unsyncedFormList.size() + " forms");
         } else {
@@ -178,5 +188,59 @@ public class UnsyncedListActivity extends AppCompatActivity implements CallbackH
     @Override
     public void setSyncedWithServer(FileModel model, boolean synced) {
         //model.setSyncedWithServer(context, synced);
+    }
+
+    private class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(context);
+            View v = layoutInflater.inflate(R.layout.list_item_unsynced_form, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.nameTextview.setText(FormModel.getName(context, unsyncedFormList.get(position).formId));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+            Date date = new Date();
+            date.setTime(unsyncedFormList.get(position).captureDate);
+            String dateStr = simpleDateFormat.format(date);
+            holder.dateTextview.setText(dateStr);
+            if (unsyncedFormList.get(position).latitude == -1) {
+                holder.latitudeTextview.setText("Not available");
+            } else {
+                holder.latitudeTextview.setText("" + unsyncedFormList.get(position).latitude);
+            }
+            if (unsyncedFormList.get(position).longitude == -1) {
+                holder.longitudeTextview.setText("Not available");
+            } else {
+                holder.longitudeTextview.setText("" + unsyncedFormList.get(position).longitude);
+            }
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return unsyncedFormList.size();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public TextView nameTextview;
+            public TextView dateTextview;
+            public TextView latitudeTextview;
+            public TextView longitudeTextview;
+            public CardView cardView;
+
+            public ViewHolder(View v) {
+                super(v);
+                nameTextview = v.findViewById(R.id.textview_name);
+                dateTextview = v.findViewById(R.id.textview_date);
+                latitudeTextview = v.findViewById(R.id.textview_latitude);
+                longitudeTextview = v.findViewById(R.id.textview_longitude);
+                cardView = v.findViewById(R.id.cardview);
+            }
+        }
     }
 }

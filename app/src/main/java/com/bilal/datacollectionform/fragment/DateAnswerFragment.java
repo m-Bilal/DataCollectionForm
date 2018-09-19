@@ -42,10 +42,12 @@ public class DateAnswerFragment extends Fragment {
     private Date date;
     private DatePicker datePicker;
     private List<QuestionAnswerModel> questionAnswerModels;
+    private TextView errorTextview;
 
     private boolean alreadyAnswered;
     private int position;
     private String answer;
+    private boolean required;
 
     private CallbackHelper.FragmentAnswerCallback callback;
     private CallbackHelper.FragmentCallback fragmentCallback;
@@ -73,8 +75,15 @@ public class DateAnswerFragment extends Fragment {
 
         questionTextView = v.findViewById(R.id.textview_question);
         datePicker = v.findViewById(R.id.datepicker);
+        errorTextview = v.findViewById(R.id.textview_error);
+        errorTextview.setVisibility(View.GONE);
 
         formQuestionModel = FormQuestionModel.getModelForPrimaryKey(context, questionKey);
+        if (formQuestionModel.required == 1) {
+            required = true;
+        } else {
+            required = false;
+        }
         questionTextView.setText(formQuestionModel.label);
 
         fragmentCallback.setAnswerListInCurrentFragment();
@@ -96,6 +105,21 @@ public class DateAnswerFragment extends Fragment {
                         selectDate();
                     }
                 });
+    }
+
+    public boolean requirementsSatisfied() {
+        if (required) {
+            if (answer.trim().equals("")) {
+                errorTextview.setVisibility(View.VISIBLE);
+                errorTextview.setText("Mandatory to answer this question, cannot be skipped");
+                return false;
+            } else {
+                errorTextview.setVisibility(View.GONE);
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     private void selectDate() {
@@ -121,6 +145,7 @@ public class DateAnswerFragment extends Fragment {
         } catch (IndexOutOfBoundsException e){
             questionAnswerModel = new QuestionAnswerModel();
             alreadyAnswered = false;
+            answer = "";
             initDatePicker(new Date());
         } catch (Exception e) {
             answer = "";

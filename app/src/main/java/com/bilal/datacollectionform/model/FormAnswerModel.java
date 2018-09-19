@@ -271,4 +271,15 @@ public class FormAnswerModel extends RealmObject {
         realm.close();
         return  list;
     }
+
+    public static void deleteAllSyncedModelsFromRealm(Context context) {
+        Realm.init(context);
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<FileModel> realmResults = realm.where(FileModel.class)
+                .equalTo("syncedWithServer", true).findAll();
+        realm.beginTransaction();
+        realmResults.deleteAllFromRealm();
+        realm.commitTransaction();
+        realm.close();
+    }
 }
