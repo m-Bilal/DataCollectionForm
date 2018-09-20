@@ -149,6 +149,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                     if (location != null) {
                         Log.d(TAG, "onCreateView, fusedLocationProciderClient, latitude" + location.getLatitude());
                         Log.d(TAG, "onCreateView, fusedLocationProciderClient, longitude" + location.getLongitude());
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
                     } else {
                         Log.d(TAG, "onCreateView, fusedLocationProciderClient, location null");
                     }
@@ -156,8 +158,8 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
             });
 
             mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(10 * 1000);
-            mLocationRequest.setFastestInterval(5 * 1000);
+            mLocationRequest.setInterval(5 * 1000); // Increase to consume less battery
+            mLocationRequest.setFastestInterval(2 * 1000); // Increase to consume less battery
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -197,11 +199,14 @@ public class FormQuestionActivity extends AppCompatActivity implements CallbackH
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     if (locationResult == null) {
+                        Log.d(TAG, "onCreateView, locationCallback, null");
                         return;
                     }
                     for (Location location : locationResult.getLocations()) {
                         Log.d(TAG, "onCreateView, locationCallback, latitude" + location.getLatitude());
                         Log.d(TAG, "onCreateView, locationCallback, longitude" + location.getLongitude());
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
                     }
                 }
             };

@@ -146,8 +146,12 @@ public class AnswerListFragment extends Fragment {
             holder.questionTextview.setText(questionAnswerModels.get(position).label);
             if (questionAnswerModels.get(position).type.equals(FormQuestionModel.TYPE_FILE_UPLOAD) ||
                     questionAnswerModels.get(position).type.equals(FormQuestionModel.TYPE_IMAGE)) {
-                holder.answerTextview.setText(Helper.getFileName(context,
-                        Uri.parse(questionAnswerModels.get(position).value)));
+                try {
+                    holder.answerTextview.setText(Helper.getFileName(context,
+                            Uri.parse(questionAnswerModels.get(position).value)));
+                } catch (Exception e) {
+                    holder.answerTextview.setText("");
+                }
             } else {
                 holder.answerTextview.setText(questionAnswerModels.get(position).value);
             }
